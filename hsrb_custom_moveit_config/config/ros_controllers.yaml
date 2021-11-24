@@ -1,0 +1,92 @@
+# Simulation settings for using moveit_sim_controllers
+moveit_sim_hw_interface:
+  joint_model_group: arm
+  joint_model_group_pose: go
+# Settings for ros_control_boilerplate control loop
+generic_hw_control_loop:
+  loop_hz: 300
+  cycle_time_error_threshold: 0.01
+# Settings for ros_control hardware interface
+hardware_interface:
+  joints:
+    - world
+    - odom_y
+    - odom_x
+    - odom_r
+    - arm_lift_joint
+    - arm_flex_joint
+    - arm_roll_joint
+    - wrist_flex_joint
+    - wrist_roll_joint
+    - wrist_ft_sensor_frame_joint
+    - hand_l_spring_proximal_joint
+    - hand_motor_joint
+    - hand_r_spring_proximal_joint
+    - base_b_bumper_joint
+    - base_f_bumper_joint
+    - base_roll_joint
+    - base_l_drive_wheel_joint
+    - base_l_passive_wheel_x_frame_joint
+    - base_l_passive_wheel_y_frame_joint
+    - base_l_passive_wheel_z_joint
+    - base_r_drive_wheel_joint
+    - base_r_passive_wheel_x_frame_joint
+    - base_r_passive_wheel_y_frame_joint
+    - base_r_passive_wheel_z_joint
+    - head_pan_joint
+    - head_tilt_joint
+  sim_control_mode: 1  # 0: position, 1: velocity
+# Publish all joint states
+# Creates the /joint_states topic necessary in ROS
+joint_state_controller:
+  type: joint_state_controller/JointStateController
+  publish_rate: 50
+controller_list:
+  - name: base_controller
+    action_ns: follow_joint_trajectory
+    default: True
+    type: FollowJointTrajectory
+    joints:
+      - odom_y
+      - odom_x
+      - odom_r
+  - name: arm_controller
+    action_ns: follow_joint_trajectory
+    default: True
+    type: FollowJointTrajectory
+    joints:
+      - arm_lift_joint
+      - arm_flex_joint
+      - arm_roll_joint
+      - wrist_flex_joint
+      - wrist_roll_joint
+      - wrist_ft_sensor_frame_joint
+  - name: whole_body_controller
+    action_ns: follow_joint_trajectory
+    default: True
+    type: FollowJointTrajectory
+    joints:
+      - odom_y
+      - odom_x
+      - odom_r
+      - arm_lift_joint
+      - arm_flex_joint
+      - arm_roll_joint
+      - wrist_flex_joint
+      - wrist_roll_joint
+      - wrist_ft_sensor_frame_joint
+  - name: head_controller
+    action_ns: follow_joint_trajectory
+    default: True
+    type: FollowJointTrajectory
+    joints:
+      - head_pan_joint
+      - head_tilt_joint
+  - name: gripper_controller
+    action_ns: follow_joint_trajectory
+    default: True
+    type: FollowJointTrajectory
+    joints:
+      - hand_l_spring_proximal_joint
+      - hand_motor_joint
+      - hand_r_spring_proximal_joint

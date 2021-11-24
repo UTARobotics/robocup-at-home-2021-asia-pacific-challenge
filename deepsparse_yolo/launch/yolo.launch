@@ -1,0 +1,6 @@
+<launch>
+    <!-- yolo -->
+    <node name= "depth" pkg= "deepsparse_yolo" type= "depth.py" respawn= "false" output="screen"/>
+    <node name= "yolo" pkg= "deepsparse_yolo" type= "yolo.py" respawn= "false" output="screen"/>
+    <node name= "object" pkg= "deepsparse_yolo" type= "object.py" respawn= "false" output="screen"/>
+</launch>

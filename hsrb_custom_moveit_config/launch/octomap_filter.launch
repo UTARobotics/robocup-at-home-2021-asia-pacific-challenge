@@ -1,0 +1,5 @@
+<launch>
+
+    <node name="listen" pkg="hsrb_custom_moveit_config" type="octomap_filter.py" />
+
+</launch>

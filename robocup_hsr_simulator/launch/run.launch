@@ -1,0 +1,11 @@
+<launch>
+    <param name="use_sim_time" type="bool" value="true" />
+    <!-- machine vision yolo -->
+    <include file="$(find deepsparse_yolo)/launch/yolo.launch" />
+
+    <!-- arm manipulation moveit -->
+    <include file="$(find hsrb_custom_moveit_config)/launch/hsrb_demo_with_controller.launch" />
+
+    <!-- game plan node -->
+    <node name= "main_program" pkg= "robocup_hsr_simulator" type= "task_1.py" output="screen" />
+</launch>

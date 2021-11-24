@@ -1,0 +1,18 @@
+<launch>
+
+    <!-- Terminate old malfunction move group node 
+    <node name="kill_old_move_group" pkg="rosnode" type="rosnode" args="kill /move_group" />
+-->
+    <!-- Deepsparse YOLO for machine vision -->
+    <include file="$(find deepsparse_yolo)/launch/yolo.launch" >
+    </include>
+
+    <!-- Moveit for manipulation -->
+    <include file="$(find hsrb_custom_moveit_config)/launch/hsrb_demo_with_controller.launch" >
+    </include>
+
+    <!--Task1-->
+    <node pkg="robocup_hsr_simulator" name="task_1" type="task_1.py" output="screen"/> 
+    <!-- <node name="task_1" pkg="robocup_hsr_simulator" type="task_1.py"/> -->
+
+</launch>
