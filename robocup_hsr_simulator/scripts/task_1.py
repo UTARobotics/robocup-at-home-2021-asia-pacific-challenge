@@ -576,6 +576,7 @@ def robot_reset():
 
 if __name__ == "__main__":
     
+    check_entrance = True
     step = -1
     rospy.init_node("main_task")
     r = rospy.Rate(10)
@@ -605,7 +606,11 @@ if __name__ == "__main__":
                 else:
                     #Task1 starts here
                     try:
-                        robot.search()
+                        if check_entrance == True:
+                            robot.check_entrance_floor()
+                            check_entrance = False
+                        else:
+                            robot.search()
                     except:
                         pass
             elif  step == 2:
