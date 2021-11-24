@@ -426,7 +426,7 @@ def move_hand(v):
     # gripper.set_max_acceleration_scaling_factor(0.5)
     
     success = gripper.go()
-    rospy.sleep(6)
+    rospy.sleep(5)
 
     return success
 
