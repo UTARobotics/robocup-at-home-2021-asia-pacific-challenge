@@ -1,6 +1,6 @@
-FROM devrt/ros-devcontainer-vscode:melodic-desktop
+FROM ros:melodic-perception
 
-USER root
+SHELL [ "/bin/bash", "-c" ]
 
 ENV DEBIAN_FRONTEND noninteractive
 
@@ -23,7 +23,6 @@ RUN source /opt/ros/$ROS_DISTRO/setup.bash && \
 RUN apt-get update
 RUN apt-get -y install python3-pip python3-catkin-pkg-modules python3-rospkg-modules 
 
-USER developer
 #install YoloV3
 RUN cd ~
 RUN wget https://raw.githubusercontent.com/ultralytics/yolov3/master/requirements.txt
@@ -31,8 +30,6 @@ RUN pip3 install scikit-build
 RUN pip3 install --upgrade setuptools pip
 RUN python3 -m pip install -r ~/requirements.txt
 RUN python3 -m pip install sparseml sparsezoo deepsparse
-
-USER root
 
 # create workspace folder
 RUN mkdir -p /workspace/src
