@@ -8,8 +8,6 @@ ENV DEBIAN_FRONTEND noninteractive
 RUN apt-get update
 RUN apt-get -y install python3-pip python3-catkin-pkg-modules python3-rospkg-modules 
 
-USER developer
-
 # Install ipykernel
 RUN pip3 install ipykernel
 RUN python3 -m ipykernel install --user
