@@ -350,6 +350,12 @@ class Task_2(object):
         #if len(obs) == 0:
         #move_head_tilt(-1.0)
         #move_base_goal(2.28, 3.84, 90) # Move to front of shelf
+        
+        self.collision_obj.scene.remove_world_object("task_1_boundary_1")
+        self.collision_obj.scene.remove_world_object("task_1_boundary_2")
+        self.collision_obj.scene.remove_world_object("task_1_boundary_3")
+        self.collision_obj.scene.remove_world_object("task_1_boundary_4")
+        self.collision_obj.scene.remove_world_object("task_1_boundary_5")
 
         GROUND_LENGTH = 100.00
         GROUND_WIDTH = 100.00
@@ -367,7 +373,7 @@ class Task_2(object):
               
         clear_octomap()
         
-        time.sleep(10)
+        time.sleep(15.0)
 
         self.robot_arm.move_base_link_pose_ik("map",2.28, 3.84, 90)
 
