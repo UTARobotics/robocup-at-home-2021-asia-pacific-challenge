@@ -327,7 +327,7 @@ def move_whole_body_pose_ik(ref_frame, x, y, z, roll, pitch, yaw):
 
     # plan1 = whole_body.plan()
     
-    for i in range(5):
+    for i in range(15):
 	    print('iteration %d'%i)
 	    success = whole_body.go(wait=True)
 	    if success:
@@ -426,7 +426,7 @@ def move_hand(v):
     # gripper.set_max_acceleration_scaling_factor(0.5)
     
     success = gripper.go()
-    rospy.sleep(5)
+    rospy.sleep(3)
 
     return success
 
