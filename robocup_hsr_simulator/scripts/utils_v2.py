@@ -425,7 +425,7 @@ def move_hand(v):
     gripper.set_joint_value_target("hand_motor_joint", v)
     # gripper.set_max_acceleration_scaling_factor(0.5)
     
-    gripper.go()
+    success = gripper.go()
     rospy.sleep(6)
 
     return success
