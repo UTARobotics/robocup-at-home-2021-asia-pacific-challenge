@@ -67,6 +67,7 @@ class Depth(object):
     #Convert the referance frame of a tf
     def convert_TF(self,parent_frame,child_frame):
         self.listener.waitForTransform(parent_frame, child_frame, rospy.Time(), rospy.Duration(4.0))
+        trans = np.empty(3)
         while not rospy.is_shutdown():
             try:
                 (trans, rot) = self.listener.lookupTransform(parent_frame,child_frame,rospy.Time(0))
@@ -74,7 +75,8 @@ class Depth(object):
                 break
             except (tf.LookupException,tf.ConnectivityException, tf.ExtrapolationException) as e :
                 rospy.logerr(e)
-                continue
+                trans[:] = np.NaN
+                break
         return {'x':trans[0],'y':trans[1],'z':trans[2],'roll':0,'pitch':0,'yaw':yaw}  
 
     # Callback function object bboxes     
@@ -142,6 +144,9 @@ class Depth(object):
                 frame = obj['cat'] + str(obj['id']) 
                 trans = []
                 trans = self.convert_TF('map', frame)
+                if np.isnan(trans['x'] + trans['y'] + trans['z']):
+                    self.obj_buff.remove(obj) 
+                    continue
                 #update database here
                 msg = Object()
                 msg.Class = obj['cat']
@@ -169,7 +174,7 @@ class Depth(object):
                 # self.record_object_tf()
             if len(self.obj_buff) > 0 and self.record:
                 # rospy.loginfo("Recording ...")
-                self.loop_rate.sleep()
+                #self.loop_rate.sleep()
                 self.record_object_tf()
             if self.recorded and not self.record:        
                 msg = Objects()
