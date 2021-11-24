@@ -8,6 +8,8 @@ ENV DEBIAN_FRONTEND noninteractive
 RUN apt-get update
 RUN apt-get -y install python3-pip python3-catkin-pkg-modules python3-rospkg-modules 
 
+USER developer
+
 # Install ipykernel
 RUN pip3 install ipykernel
 RUN python3 -m ipykernel install --user
@@ -19,6 +21,8 @@ RUN pip3 install scikit-build
 RUN pip3 install --upgrade setuptools pip
 RUN python3 -m pip install -r ~/requirements.txt
 RUN python3 -m pip install sparseml sparsezoo deepsparse
+
+USER root
 
 # create workspace folder
 RUN mkdir -p /workspace/src
