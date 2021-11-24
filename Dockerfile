@@ -18,9 +18,8 @@ RUN source /opt/ros/$ROS_DISTRO/setup.bash && \
     cd .. && \
     catkin_make install -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/opt/ros/$ROS_DISTRO -DCATKIN_ENABLE_TESTING=0 && \
     cd / && rm -r /bio_ik_ws
-
+RUN apt-get -y install wget
 # Install python3-pip
-RUN apt-get update
 RUN apt-get -y install python3-pip python3-catkin-pkg-modules python3-rospkg-modules 
 
 #install YoloV3
