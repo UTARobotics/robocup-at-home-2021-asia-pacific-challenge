@@ -27,7 +27,7 @@ RUN cd ~
 RUN wget https://raw.githubusercontent.com/ultralytics/yolov3/master/requirements.txt
 RUN pip3 install scikit-build
 RUN pip3 install --upgrade setuptools pip
-RUN python3 -m pip install -r ~/requirements.txt
+RUN python3 -m pip install -r requirements.txt
 RUN python3 -m pip install sparseml sparsezoo deepsparse
 
 # create workspace folder
