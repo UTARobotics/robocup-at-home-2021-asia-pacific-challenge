@@ -78,6 +78,7 @@ def object_grasping():
     # Check whether the object is successfully grasped
     arm.set_named_target("neutral")
     arm.go(wait=True)
+
     move_head_tilt(-1.0)
     rospy.sleep(4)
     points_data = rgbd.get_points()
@@ -85,21 +86,20 @@ def object_grasping():
     if math.isnan(grasped) == True:
         print("grasped object")
         return True
-    elif math.isnan(grasped) == False:
+    else:
         print("no grasped object")
-        return False 
-
+        return False
 
 class ARM_t1():
 
     def __init__(self):
-
+        
         self.grasp_tool = False
         self.grasp_shape_item = False
         self.check_entrance = True
         self.picked_food = 0
         self.target_item = None
-        self.failed_item = []
+        self.failed_item_list = []
 
         base.set_planner_id("PRM")
         base.set_goal_joint_tolerance(0.001)
@@ -134,11 +134,12 @@ class ARM_t1():
         # Head down
         move_head_tilt(-0.9)
         #wait for robot to finish move to pose
-        rospy.sleep(5)
+        rospy.sleep(3)
 
         # Trigger YOLO detection
         yolo.clear_list(True)
         yolo.detect(True)
+        rospy.sleep(3)
         detected_item_list = yolo.detected_items()
 
         # Head central
@@ -154,8 +155,7 @@ class ARM_t1():
             print("Decide to open drawers...")
             self.grasp_tool = True
             self.grasp_shape_item = True
-            self.open_drawers()        
-            
+            self.open_drawers()                    
 
     def open_drawers(self):
 
@@ -254,7 +254,7 @@ class ARM_t1():
             arm.set_named_target("drawer_bottom")
             arm.go(wait=True)
             
-            collision_object.box(0.49, -0.53, 0.22, DRAWER_LENGTH, DRAWER_WIDTH, DRAWER_HEIGHT, "map", "drawer_left")
+            collision_object.box(0.49, -0.55, 0.22, DRAWER_LENGTH, DRAWER_WIDTH, DRAWER_HEIGHT, "map", "drawer_left")
             # clear_octomap()
             # move_base_pose_ik("map", DRAWER_LEFT_KNOB[0] - 0.078, DRAWER_LEFT_KNOB[1], -90)
             base_variable_values = base.get_current_joint_values()
@@ -283,7 +283,7 @@ class ARM_t1():
             clear_octomap()
             move_base_vel(-0.06, 0, 0, -0.06, 0, 0)
             
-            collision_object.box(0.49, (-0.53 + 0.27), 0.22, DRAWER_LENGTH, DRAWER_WIDTH, DRAWER_HEIGHT, "map", "drawer_left")
+            collision_object.box(0.49, (-0.53 + 0.25), 0.22, DRAWER_LENGTH, DRAWER_WIDTH, DRAWER_HEIGHT, "map", "drawer_left")
             move_base_vel(-0.05, 0, 0, -0.05, 0, 0)
             move_arm_init()
             clear_octomap()
@@ -325,18 +325,18 @@ class ARM_t1():
             
         
         self.pick(end_effector_z_min)
+        picked_up = object_grasping()
+        if not picked_up:
+            self.failed_item_list.append(self.target_item)
+            for i in range (len(self.failed_item_list)):
+                print("Failed item: " + self.failed_item_list[i].Class)
+        else:
+            move_arm_init()
+            move_arm_init()
+            
+            self.place() 
 
-        if not object_grasping():
-            self.failed_item.append(self.target_item)
-            for i in self.failed_item[i]:
-                print("Failed item: " + self.failed_item[i].Class)
-
-        move_arm_init()
-        move_arm_init()
-        
-        self.place() 
-
-        move_base_vel(-0.1, 0, 0, -0.1, 0, 0)
+            move_base_vel(-0.1, 0, 0, -0.1, 0, 0)
 
 
     def manipulation_cost(self):
@@ -352,6 +352,8 @@ class ARM_t1():
 
         yolo.clear_list(True)
         yolo.detect(True)
+        rospy.sleep(6)
+
         detected_item_list = yolo.detected_items()
 
         print("grasp_tool = " + str(self.grasp_tool))
@@ -362,15 +364,14 @@ class ARM_t1():
         print("Looked up 'map' to 'base' transform: ")
         print(map_base)
 
+        aborted = False
+
         for item in range(len(detected_item_list)):
             if (detected_item_list[item].Class in TOOL_ITEMS and self.grasp_tool == False) or (detected_item_list[item].Class in SHAPE_ITEMS and self.grasp_shape_item == False):
                 continue
             # if item at task 2 area: ignore them
             if (detected_item_list[item].y > 2.2):
                 continue
-            if len(self.failed_item) > 0:
-                if (detected_item_list[item].Class in self.failed_item.Class):
-                    continue
             print(detected_item_list[item].Class + str(detected_item_list[item].id))
             # Euclidean distance
             robot_item_distance = math.sqrt( (map_base.translation.x - detected_item_list[item].x) ** 2 + (map_base.translation.y - detected_item_list[item].y) ** 2 + (map_base.translation.z - detected_item_list[item].z) )
@@ -389,11 +390,14 @@ class ARM_t1():
             # if item at task 2 area: ignore them
             if (detected_item_list[item].y > 2.2):
                 continue
-
+            if len(self.failed_item_list) > 0:
+                for i in range(len(self.failed_item_list)):
+                    if (detected_item_list[item].Class in self.failed_item_list[i].Class):
+                        aborted = True
             if (detected_item_list[item].Class in HIGH_GRASP_DIFFICUTY):
                 GRASP_COST = 1.0
             elif (detected_item_list[item].Class in MEDIUM_GRASP_DIFFICUTY):
-                GRASP_COST = 0.5
+                GRASP_COST = 0.4
             elif (detected_item_list[item].Class in LOW_GRASP_DIFFICUTY):
                 GRASP_COST = 0.2
             
@@ -401,7 +405,7 @@ class ARM_t1():
             total_cost = (robot_item_distance / shortest_robot_item_distance) * GRASP_COST
             print("Total cost = " + str(total_cost))
 
-            if total_cost < lowest_total_cost:
+            if (total_cost < lowest_total_cost) and (aborted != True):
                 lowest_total_cost = total_cost
                 self.target_item = detected_item_list[item]
                 print("target_item = ", self.target_item)
@@ -442,7 +446,13 @@ class ARM_t1():
             move_whole_body_pose_ik("map", self.target_item.x, self.target_item.y, (self.target_item.z + 0.025), 0, 180, 90)
         # Close gripper
         rospy.sleep(1.0)
-        move_hand(0.0)
+        if move_hand(0.0) == False:
+            move_hand(0.0)
+
+        # Upload Approx Grasping Object
+        BOX_LENGTH = 0.1
+        collision_object.box(0, 0, 0.1, BOX_LENGTH, BOX_LENGTH, BOX_LENGTH, "hand_palm_link", "approx_grasped_item")
+        # collision_object.attach("approx_grasped_item")
 
         # Retract the gripper up along z-axis
         # move_end_effector_by_line([0, 0, 1], SAFETY_POST_GRASP_RETRACT_DIS) 
@@ -465,23 +475,26 @@ class ARM_t1():
                 navigate_to('Long_Table_A_Trays')
                 yolo.clear_list(True)
                 yolo.detect(True)
+                rospy.sleep(6)
                 tray = yolo.get_item_info('tray')
                 self.picked_food += 1
                 num_type = "even" if self.picked_food % 2 == 0 else "odd"
                 if num_type == "odd":
                     move_whole_body_pose_ik("map", tray.x, tray.y, *TRAY_A)
                 elif num_type == "even":
-                    move_whole_body_pose_ik("map", *TRAY_B)
+                    move_whole_body_pose_ik("map", tray.x, tray.y, *TRAY_B)
             elif self.target_item.Class in KITCHEN_ITEMS:
                 navigate_to('Long_Table_A_Containers')
                 yolo.clear_list(True)
                 yolo.detect(True)
+                rospy.sleep(6)
                 b_container = yolo.get_item_info('b_container')
                 move_whole_body_pose_ik("map", b_container.x, b_container.y, *CONTAINER_B)
             elif self.target_item.Class in ORIENTATION_ITEMS:
                 navigate_to('Long_Table_A_Containers')
                 yolo.clear_list(True)
                 yolo.detect(True)
+                rospy.sleep(6)
                 a_container = yolo.get_item_info('a_container')
                 move_whole_body_pose_ik("map", a_container.x, a_container.y, *CONTAINER_A)        
             elif self.target_item.Class in TOOL_ITEMS:
@@ -494,17 +507,21 @@ class ARM_t1():
                 navigate_to('Bins')
                 yolo.clear_list(True)
                 yolo.detect(True)
+                rospy.sleep(6)
                 green_bin = yolo.get_item_info('green_bin')
                 move_whole_body_pose_ik("map", green_bin.x, green_bin.y, *BIN_A)
             else:
                 navigate_to('Bins')
                 yolo.clear_list(True)
                 yolo.detect(True)
+                rospy.sleep(6)
                 black_bin = yolo.get_item_info('black_bin')
                 move_whole_body_pose_ik("map", black_bin.x, black_bin.y, *BIN_B)
             
             rospy.sleep(1.0)
             move_hand(1.0)
+            # collision_object.dettach("approx_grasped_item")
+            # collision_object.scene.remove_world_object("approx_grasped_item")
 
         except EOFError:
             print("Error!!!")
@@ -527,7 +544,7 @@ def navigate_to(location):
         move_base_goal(1.1148, 0.075, -90)
         move_head_tilt(-0.9)
     if location == 'Long_Table_A_Trays':
-        move_base_goal(1.7548, 0.075, -90)
+        move_base_goal(1.7348, 0.075, -90)
         move_head_tilt(-0.9)
     if location == 'Bins':
         move_base_goal(2.7048, 0.075, -90)
