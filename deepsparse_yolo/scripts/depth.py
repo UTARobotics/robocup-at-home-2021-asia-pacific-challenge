@@ -1,6 +1,7 @@
 #!/usr/bin/env python2.7
 # -*- coding: utf-8 -*-
 import sys
+from numpy.core.numeric import NaN
 sys.path.insert(0, '/workspace/src/ultralytics-yolo')
 import rospy
 from cv_bridge import CvBridge, CvBridgeError
@@ -9,6 +10,7 @@ from std_msgs.msg import String
 import cv2
 import os
 import numpy as np
+import math
 import param
 
 from deepsparse_yolo_msgs.msg import BBox, BBoxes, Object, Objects
@@ -106,7 +108,8 @@ class Depth(object):
             #Get median of depth image 
             d = np.nanmedian(result)
             #Get object TF and publish
-            self.obj_buff.append({'cat':cat,'id':id,'y':tar_y,'x':tar_x,'d':d})
+            if not math.isnan(d):
+                self.obj_buff.append({'cat':cat,'id':id,'y':tar_y,'x':tar_x,'d':d})
             #self.get_object(cat,id ,tar_y,tar_x,d,self.depth_header)
             # pose = self.convert_TF('map',cat)
             # obj = {'x':pose.x,'y':pose.y,'z':pose.z,'name':cat}
@@ -162,9 +165,11 @@ class Depth(object):
                 for obj in self.obj_buff:
                    self.publish_object_tf(obj,self.depth_header)
                 self.record = True
+                self.loop_rate.sleep()
                 # self.record_object_tf()
             if len(self.obj_buff) > 0 and self.record:
                 # rospy.loginfo("Recording ...")
+                self.loop_rate.sleep()
                 self.record_object_tf()
             if self.recorded and not self.record:        
                 msg = Objects()
