@@ -83,7 +83,23 @@
         <joint name="wrist_ft_sensor_frame_joint" value="0" />
         <joint name="wrist_roll_joint" value="0" />
     </group_state>
-        <group_state name="shelf_level0" group="arm">
+    <group_state name="drawer_bottom" group="arm">
+        <joint name="arm_flex_joint" value="-2.45" />
+        <joint name="arm_lift_joint" value="0.22" />
+        <joint name="arm_roll_joint" value="0" />
+        <joint name="wrist_flex_joint" value="0.87" />
+        <joint name="wrist_ft_sensor_frame_joint" value="0" />
+        <joint name="wrist_roll_joint" value="-1.57" />
+    </group_state>
+    <group_state name="drawer_top" group="arm">
+        <joint name="arm_flex_joint" value="-2.45" />
+        <joint name="arm_lift_joint" value="0.47" />
+        <joint name="arm_roll_joint" value="0" />
+        <joint name="wrist_flex_joint" value="0.87" />
+        <joint name="wrist_ft_sensor_frame_joint" value="0" />
+        <joint name="wrist_roll_joint" value="-1.57" />
+    </group_state>
+    <group_state name="shelf_level0" group="arm">
         <joint name="arm_flex_joint" value="-2.0944" />
         <joint name="arm_lift_joint" value="0" />
         <joint name="arm_roll_joint" value="3.14159" />
