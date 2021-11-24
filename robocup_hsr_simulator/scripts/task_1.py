@@ -3,21 +3,7 @@
 from task_2 import *
 # Pick & Place by using IK of whole body
 
-from utils_v2 import *
-# from test_yolo_v2 import *
-from param import *
-from deepsparse_yolo_msgs.msg import Object, Objects
-from deepsparse_yolo_msgs.srv import SetDetectState, SetDetectStateResponse, RemoveObject, RemoveObjectResponse, ClearObjects, ClearObjectsResponse
-
-#! /usr/bin/env python
-# -*- encoding: UTF-8 -*
-
-# Pick & Place by using IK of whole body
-
 import math 
-import sys
-import os
-sys.path.insert(0, '/workspace/notebooks/')
 from utils_v2 import *
 from param import *
 from deepsparse_yolo_msgs.msg import Object, Objects
@@ -574,7 +560,6 @@ def robot_reset():
 if __name__ == "__main__":
     
     step = -1
-    os.system("rosnode kill /move_group")
     rospy.init_node("main_task")
     r = rospy.Rate(10)
     collision_object = collision_object()
@@ -585,7 +570,6 @@ if __name__ == "__main__":
     # task 2
     t2 = Task_2()
     print("Starting...")
-
     forteen_min = rospy.Duration(14*60) #change state earlier
     five_min = rospy.Duration(5*60)
     start = rospy.Time.now()
