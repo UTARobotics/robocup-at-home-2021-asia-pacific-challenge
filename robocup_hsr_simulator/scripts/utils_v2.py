@@ -188,7 +188,7 @@ def get_relative_coordinate(parent, child):
             # 4秒待機して各tfが存在すれば相対関係をセット
             trans = tfBuffer.lookup_transform(parent, child,
                                               rospy.Time().now(),
-                                              rospy.Duration(4.0))
+                                              rospy.Duration(5.0))
             break
         except (tf2_ros.ExtrapolationException):
             pass
@@ -377,8 +377,8 @@ def move_base_pose_ik(ref_frame, x, y, yaw):
         if success:
              break
     
-    if success:
-    	move_base_vel(0, -0.2, 0, 0, 0.0780025485842, 0)
+    # if success:
+    # 	move_base_vel(0, -0.05, 0, 0, 0.0780025485842, 0)
 
     return success
     
@@ -424,12 +424,9 @@ def move_hand(v):
 
     gripper.set_joint_value_target("hand_motor_joint", v)
     # gripper.set_max_acceleration_scaling_factor(0.5)
-    for i in range(5):
-        print('gripper iteration %d'%i)
-        success = gripper.go(wait=True)
-        if success:
-            break
-    rospy.sleep(2)
+    
+    gripper.go()
+    rospy.sleep(6)
 
     return success
 
