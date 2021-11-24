@@ -8,8 +8,6 @@ ENV DEBIAN_FRONTEND noninteractive
 RUN apt-get update
 RUN apt-get -y install python3-pip python3-catkin-pkg-modules python3-rospkg-modules 
 
-USER developer
-
 # Install ipykernel
 RUN pip3 install ipykernel
 RUN python3 -m ipykernel install --user
@@ -19,10 +17,9 @@ RUN cd ~
 RUN wget https://raw.githubusercontent.com/ultralytics/yolov3/master/requirements.txt
 RUN pip3 install scikit-build
 RUN pip3 install --upgrade setuptools pip
-RUN python3 -m pip install -r ~/requirements.txt
+RUN python3 -m pip install -r --ignore-installed ~/requirements.txt
 RUN python3 -m pip install sparseml sparsezoo deepsparse
 
-USER root
 
 # create workspace folder
 RUN mkdir -p /workspace/src
@@ -36,4 +33,4 @@ RUN cd /workspace && /ros_entrypoint.sh rosdep install --from-paths src --ignore
 # compile and install our algorithm
 RUN cd /workspace && /ros_entrypoint.sh catkin_make install -DCMAKE_INSTALL_PREFIX=/opt/ros/$ROS_DISTRO
 # command to run the algorithm
-CMD roslaunch robocup_challenge run.launch
+CMD roslaunch robocup_hsr_simulator run.launch
