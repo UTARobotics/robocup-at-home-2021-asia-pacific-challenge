@@ -43,4 +43,4 @@ RUN cd /workspace && /ros_entrypoint.sh rosdep install --from-paths src --ignore
 RUN cd /workspace && /ros_entrypoint.sh catkin_make install -DCMAKE_INSTALL_PREFIX=/opt/ros/$ROS_DISTRO
 
 # command to run the algorithm
-CMD roslaunch deepsparse_yolo yolo.launch
+CMD roslaunch robocup_hsr_simulator run.launch
