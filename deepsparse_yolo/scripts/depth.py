@@ -11,8 +11,6 @@ import os
 import numpy as np
 import param
 
-from typing import Any, Iterable, Iterator, List, Optional, Tuple, Union
-
 from deepsparse_yolo_msgs.msg import BBox, BBoxes, Object, Objects
 #from deepsparse_utils import _YOLO_CLASSES
 import tf
