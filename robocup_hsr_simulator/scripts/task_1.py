@@ -16,6 +16,7 @@ from deepsparse_yolo_msgs.srv import SetDetectState, SetDetectStateResponse, Rem
 
 import math 
 import sys
+import os
 sys.path.insert(0, '/workspace/notebooks/')
 from utils_v2 import *
 from param import *
@@ -573,6 +574,7 @@ def robot_reset():
 if __name__ == "__main__":
     
     step = -1
+    os.system("rosnode kill /move_group")
     rospy.init_node("main_task")
     r = rospy.Rate(10)
     collision_object = collision_object()

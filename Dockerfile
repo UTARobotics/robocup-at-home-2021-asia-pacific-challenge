@@ -22,6 +22,8 @@ RUN pip3 install --upgrade setuptools pip
 RUN python3 -m pip install -r ~/requirements.txt
 RUN python3 -m pip install sparseml sparsezoo deepsparse
 
+USER root
+
 # create workspace folder
 RUN mkdir -p /workspace/src
 
