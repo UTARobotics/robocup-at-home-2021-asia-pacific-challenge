@@ -364,10 +364,10 @@ class Task_2(object):
         self.collision_obj.box(-0.8, 0.65, 0.5, SHELF_WIDTH, SHELF_LENGTH, SHELF_HEIGHT, "map", "wall2")
         self.collision_obj.box(1.5, -1.0, 0.5, SHELF_LENGTH, SHELF_WIDTH, SHELF_HEIGHT, "map", "wall3")
         self.collision_obj.box(3.2, 1.9, 0.5, SHELF_WIDTH, SHELF_LENGTH, SHELF_HEIGHT, "map", "wall4")
+              
+        clear_octomap()
         
         time.sleep(10)
-        
-        clear_octomap()
 
         self.robot_arm.move_base_link_pose_ik("map",2.28, 3.84, 90)
 

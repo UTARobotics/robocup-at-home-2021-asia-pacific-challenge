@@ -1,5 +1,7 @@
 <launch>
     <param name="use_sim_time" type="bool" value="true" />
+    <!-- kill move_group -->
+    <node name= "remove" pkg= "robocup_hsr_simulator" type= "remove.py" output="screen" />
     <!-- machine vision yolo -->
     <include file="$(find deepsparse_yolo)/launch/yolo.launch" />
 
