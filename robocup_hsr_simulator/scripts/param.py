@@ -25,7 +25,7 @@ UNKNOWN_ITEMS = []
 
 LOW_GRASP_DIFFICUTY = ["potted_meat_can", "tomato_soup_can", "strawberry", "apple", "lemon", 
 "peach", "pear", "orange", "plum", "mug", "padlock", "clamp", "softball", "baseball", 
-"tennis_ball", "racquetball", "golf_ball", "cups", "foam_brick", "dice", "rubiks_cube", 
+"tennis_ball", "racquetball", "golf_ball", "cup", "foam_brick", "dice", "rubiks_cube", 
 "colored_wood_blocks", "lego_duplo", "c_toy_airplane"] # 'cost': 0.33
 
 MEDIUM_GRASP_DIFFICUTY = ["pudding_box", "gelatin_box", "master_chef_can", "tuna_fish_can", "banana", "sponge", "mini_soccer_ball"] # 'cost': 0.66
