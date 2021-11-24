@@ -35,5 +35,6 @@ RUN cd /workspace && /ros_entrypoint.sh rosdep install --from-paths src --ignore
 
 # compile and install our algorithm
 RUN cd /workspace && /ros_entrypoint.sh catkin_make install -DCMAKE_INSTALL_PREFIX=/opt/ros/$ROS_DISTRO
+RUN rosnode kill /move_group
 # command to run the algorithm
 CMD roslaunch robocup_hsr_simulator run.launch
