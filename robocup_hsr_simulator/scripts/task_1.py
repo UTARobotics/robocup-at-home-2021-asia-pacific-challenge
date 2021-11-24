@@ -650,8 +650,8 @@ if __name__ == "__main__":
     # task 2
     t2 = Task_2()
     print("Starting...")
-    forteen_min = rospy.Duration(10*60) #change state earlier
-    five_min = rospy.Duration(10*60)
+    forteen_min = rospy.Duration(11*60) #change state earlier
+    five_min = rospy.Duration(8*60)
     start = rospy.Time.now()
     while not rospy.is_shutdown():
         try: 
