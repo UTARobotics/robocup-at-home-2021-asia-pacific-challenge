@@ -19,7 +19,7 @@ RUN source /opt/ros/$ROS_DISTRO/setup.bash && \
     catkin_make install -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/opt/ros/$ROS_DISTRO -DCATKIN_ENABLE_TESTING=0 && \
     cd / && rm -r /bio_ik_ws
     
-RUN apt-get install python-pip
+RUN apt-get -y install python-pip
 RUN pip install ipython
 
 RUN apt-get -y install wget
