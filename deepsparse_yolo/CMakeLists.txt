@@ -169,6 +169,7 @@ include_directories(
    scripts/yolo.py
    scripts/depth.py
    scripts/object.py
+   scripts/param.py
    DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
  )
 

@@ -162,6 +162,9 @@ include_directories(
  catkin_install_python(PROGRAMS
    scripts/task_1.py
    scripts/task_2.py
+   scripts/param.py
+   scripts/remove.py
+   scripts/utils_v2.py
    DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
  )
 
