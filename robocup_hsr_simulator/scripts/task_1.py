@@ -130,39 +130,39 @@ class ARM_t1():
 
     def check_entrance_floor(self):
         
-        print("Checking entrance floor...")
-        y_min_dis = 0.9
-        # All items within "search area" are at least y distance away (wrt origin of "map" frame)?
+        # print("Checking entrance floor...")
+        # y_min_dis = 0.9
+        # # All items within "search area" are at least y distance away (wrt origin of "map" frame)?
 
-        arm.set_named_target("neutral")
-        arm.go(wait=True)
-        # Head right
-        move_head_pan(1.2)
-        # Head down
-        move_head_tilt(-0.9)
-        #wait for robot to finish move to pose
-        rospy.sleep(3)
+        # arm.set_named_target("neutral")
+        # arm.go(wait=True)
+        # # Head right
+        # move_head_pan(1.2)
+        # # Head down
+        # move_head_tilt(-0.9)
+        # #wait for robot to finish move to pose
+        # rospy.sleep(3)
 
-        # Trigger YOLO detection
-        yolo.clear_list(True)
-        yolo.detect(True)
-        rospy.sleep(3)
-        detected_item_list = yolo.detected_items()
+        # # Trigger YOLO detection
+        # yolo.clear_list(True)
+        # yolo.detect(True)
+        # rospy.sleep(3)
+        # detected_item_list = yolo.detected_items()
 
-        # Head central
-        move_head_pan(0.0)
-        move_arm_init()
+        # # Head central
+        # move_head_pan(0.0)
+        # move_arm_init()
 
-        for item in range(len(detected_item_list)):
-            print(detected_item_list[item])
-            if detected_item_list[item].y < y_min_dis:
-                print("Search area has items near outermost edge, might cause collision during navigation, decided not to open drawers...")
-                break
-        else:
-            print("Decide to open drawers...")
-            self.grasp_tool = True
-            self.grasp_shape_item = True
-            self.open_drawers()        
+        # for item in range(len(detected_item_list)):
+        #     print(detected_item_list[item])
+        #     if detected_item_list[item].y < y_min_dis:
+        #         print("Search area has items near outermost edge, might cause collision during navigation, decided not to open drawers...")
+        #         break
+        # else:
+        #     print("Decide to open drawers...")
+        #     self.grasp_tool = True
+        #     self.grasp_shape_item = True
+        self.open_drawers()         
             
 
     def open_drawers(self):
