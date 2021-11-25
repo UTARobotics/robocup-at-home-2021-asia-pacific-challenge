@@ -318,15 +318,8 @@ class ARM_t1():
         move_hand(1.0)
         move_arm_init()
         
-        print("Navigating to search area...")
-        num_type_sequence = "even" if self.num_attempted_item % 2 == 0 else "odd"
-
-        if num_type_sequence == "even":
-            navigate_to('Search_Area_Front_Left')
-        elif num_type_sequence == "odd":
-            navigate_to('Search_Area_Front_Right')
-        
-        self.num_attempted_item += 1
+        print("Navigating to search area front...")
+        navigate_to('Search_Area_Front')
 
         print("Calculating manipulating cost for each detected items...")
         self.manipulation_cost()
@@ -596,6 +589,9 @@ def navigate_to(location):
     if location == 'Drawers':
         move_base_goal(0.15, 0.5, -90)
         move_head_tilt(-0.5)
+    if location == 'Search_Area_Front':
+        move_base_goal(1.0, 0.1, 98)
+        move_head_tilt(-0.42)
     if location == 'Search_Area_Front_Left':
         move_base_goal(0.08, 0.4, 90)
         move_head_tilt(-0.55)
