@@ -534,23 +534,17 @@ class ARM_t1():
         x_diff = x - eef_trans.translation.x 
         y_diff = y - eef_trans.translation.y
         z_diff = eef_trans.translation.z - z + self.hand_palm_centroid_offset
-        print(z_diff)
         self.move_base_link_pose_ik( "map", base_trans.translation.x + x_diff , base_trans.translation.y + y_diff, 90)
 
         print('move arm')
-        arm_joints = arm.get_current_joint_values()
-        join = arm_joints[0]-z_diff
-        print(join)
-        arm.set_joint_value_target("arm_lift_joint", arm_joints[0]-z_diff)
-        arm.go(wait=True)
+        move_end_effector_by_line([0, 0, 1], -z_diff)
+
         print('close')
         # Close gripper
         move_hand(0.05)
         # Remove arm from the shelf
         #move_base_vel(-1.0,0,0)
-        arm_joints = arm.get_current_joint_values()
-        arm.set_joint_value_target("arm_lift_joint", arm_joints[0]+0.04)
-        arm.go(wait=True)
+        move_end_effector_by_line([0, 0, 1], z_diff)
         
         arm.set_named_target("transport_object")
         return arm.go(wait=True)
