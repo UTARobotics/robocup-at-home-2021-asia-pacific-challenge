@@ -200,6 +200,8 @@ def get_relative_coordinate(parent, child):
 arm = moveit_commander.MoveGroupCommander("arm")
 base = moveit_commander.MoveGroupCommander("base")
 whole_body = moveit_commander.MoveGroupCommander("whole_body")
+whole_body_light = moveit_commander.MoveGroupCommander("whole_body_light")
+
 arm.allow_replanning(True)
 
 def move_wholebody_ik(x, y, z, roll, pitch, yaw):
@@ -232,9 +234,9 @@ def move_wholebody_ik(x, y, z, roll, pitch, yaw):
     p.pose.orientation = quaternion_from_euler(roll, pitch, yaw)
 
     # 目標位置姿勢をセット
-    whole_body.set_pose_target(p)
-    return whole_body.go()
-    
+    whole_body_light.set_pose_target(p)
+    return whole_body_light.go()
+
 def move_wholebody_position_ik(x, y, z):
 
     # p = PoseStamped()
