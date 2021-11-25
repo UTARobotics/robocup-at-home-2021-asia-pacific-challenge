@@ -513,12 +513,12 @@ class ARM_t1():
     def grab(self, x, y, z):
         # Go to predefined arm pose based on the target object's height
         if self.target_item.z < 0.25:
-            pose = "sweep_floor"
+            pose = "grip_down_floor"
         elif self.target_item.z > 0.38 and self.target_item.x > 0.35:
-            pose = "sweep_long_table_b"
+            pose = "grip_down_long_table_b"
         elif self.target_item.z > 0.58:
-            pose = "sweep_tall_table"
-            
+            pose = "grip_down_tall_table"
+           
         arm.set_named_target(pose)
         arm.go(wait=True)
         print('open gripper')
@@ -526,12 +526,18 @@ class ARM_t1():
         move_hand(1.0)
     
         print('move_base')
+        eef_trans = get_relative_coordinate("map", "hand_palm_link")
         base_trans = get_relative_coordinate("map", "base_link")
-        base_y =  -1*(x - base_trans.translation.x + self.hand_palm_base_link_offset)
-        base_x = y - base_trans.translation.y - self.hand_palm_centroid_offset
 
-        move_base_vel(0.2,0,0,base_x,0,0)
-        move_base_vel(0,0.2,0,0,base_y,0)    
+        x_diff = x - eef_trans.translation.x 
+        y_diff = y - eef_trans.translation.y
+        z_diff = z - eef_trans.translation.z
+
+        self.move_base_link_pose_ik( "map", base_trans.translation.x + x_diff , base_trans.translation.y + y_diff, 90)
+        
+        arm_joints = arm.get_current_joint_values()
+        arm.set_joint_value_target("arm_lift_joint", arm_joints[0]-z_diff+self.hand_palm_centroid_offset)
+        arm.go(wait=True)
         print('close')
         # Close gripper
         self.gripper_grip(0.05)
