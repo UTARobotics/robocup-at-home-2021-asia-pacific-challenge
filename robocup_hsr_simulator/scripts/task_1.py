@@ -14,8 +14,6 @@ def navigate_to(location):
     # To scan any obstacle that is unable to be detected by laser sensor
     move_head_tilt(-1)
 
-    success = False
-
     if location == 'Drawers':
         if move_base_goal(0.15, 0.5, -90):
             if move_head_tilt(-0.5):
@@ -238,7 +236,6 @@ class ARM_t1():
         #     self.grasp_shape_item = True
         self.open_drawers()        
 
-
     def open_drawers(self):
 
         print("Navigating to drawers...")
@@ -384,7 +381,6 @@ class ARM_t1():
         except EOFError:
             print("Error!!!")
 
-
     def search(self):
 
         # Fully "open" the gripper
@@ -405,7 +401,9 @@ class ARM_t1():
             print("Calculating manipulating cost for each detected items...")
             self.manipulation_cost()
             print("after cost")
+            print("attempt grabbing...")
             if self.grab(self.target_item.x, self.target_item.y, self.target_item.z):
+                print("grabbed")
                 self.place()
         
         # self.pick()
@@ -437,8 +435,11 @@ class ARM_t1():
 
         yolo.clear_list(True)
         yolo.detect(True)
-        rospy.sleep(6)
 
+        while not yolo.finished_detection():
+            print("===Waiting===")
+            rospy.sleep(1.0)
+        print("Got the items")
         detected_item_list = yolo.detected_items()
 
         print("grasp_tool = " + str(self.grasp_tool))
