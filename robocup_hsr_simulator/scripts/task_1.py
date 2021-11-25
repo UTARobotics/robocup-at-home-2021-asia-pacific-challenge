@@ -538,7 +538,7 @@ class ARM_t1():
         self.move_base_link_pose_ik( "map", base_trans.translation.x + x_diff , base_trans.translation.y + y_diff, 90)
         
         arm_joints = arm.get_current_joint_values()
-        arm.set_joint_value_target("arm_lift_joint", arm_joints[1]-z_diff)
+        arm.set_joint_value_target("arm_lift_joint", arm_joints[0]-z_diff)
         arm.go(wait=True)
         print('close')
         # Close gripper
@@ -546,7 +546,7 @@ class ARM_t1():
         # Remove arm from the shelf
         #move_base_vel(-1.0,0,0)
         arm_joints = arm.get_current_joint_values()
-        arm.set_joint_value_target("arm_lift_joint", arm_joints[1]+0.04)
+        arm.set_joint_value_target("arm_lift_joint", arm_joints[0]+0.04)
         arm.go(wait=True)
         
         arm.set_named_target("transport_object")
