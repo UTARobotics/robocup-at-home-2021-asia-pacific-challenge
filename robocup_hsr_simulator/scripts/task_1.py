@@ -17,40 +17,47 @@ def navigate_to(location):
     success = False
 
     if location == 'Drawers':
-        move_base_goal(0.15, 0.5, -90)
-        move_head_tilt(-0.5)
+        if move_base_goal(0.15, 0.5, -90):
+            if move_head_tilt(-0.5):
+                return True
     if location == 'Search_Area_Front_Left':
-        move_base_goal(0.08, 0.4, 90)
-        move_head_tilt(-0.55)
+        if move_base_goal(0.08, 0.4, 90):
+            if move_head_tilt(-0.55):
+                return True
     if location == 'Search_Area_Front_Right':
-        move_base_goal(1.0, 0.4, 90)
-        move_head_tilt(-0.72)
+        if move_base_goal(1.0, 0.4, 90):
+            if move_head_tilt(-0.72):
+                return True
     if location == 'Long_Table_A_Containers':
-        move_base_goal(1.1148, 0.075, -90)
-        move_head_tilt(-0.9)
+        if move_base_goal(1.1148, 0.075, -90):
+            if move_head_tilt(-0.9):
+                return True
     if location == 'Long_Table_A_Trays':
-        move_base_goal(1.7348, 0.075, -90)
-        move_head_tilt(-0.9)
+        if move_base_goal(1.7348, 0.075, -90):
+            if move_head_tilt(-0.9):
+                return True
     if location == 'Bins':
-        move_base_goal(2.7048, 0.075, -90)
-        move_head_tilt(-0.9)
+        if move_base_goal(2.7048, 0.075, -90):
+            if move_head_tilt(-0.9):
+                return True
     if location == 'Tall_Table':
-        move_base_goal(0.15, 1.20, 90)
-        move_head_tilt(-0.5)
+        if move_base_goal(0.15, 1.20, 90):
+            if move_head_tilt(-0.5):
+                return True
     if location == 'Long_Table_B':
-        move_base_goal(1.0, 0.75, 90)
-        move_head_tilt(-0.5)
+        if move_base_goal(1.0, 0.75, 90):
+            if move_head_tilt(-0.5):
+                return True
     if location == 'Shelf':
-        move_base_goal(2.28, 3.84, 95)
-        move_head_tilt(-0.3)
+        if move_base_goal(2.28, 3.84, 95):
+            if move_head_tilt(-0.3):
+                return True
     if location == 'Person':
-        move_base_goal(1.12, 3.46, 180)
-        move_head_tilt(0.3)
-
-    robot.upload_planning_scene()
-    rospy.sleep(1)
-
-    return success
+        if move_base_goal(1.12, 3.46, 180):
+            if move_head_tilt(0.3):
+                return True
+    else:
+        return False
 
 # ------YOLO-------
 class YOLO_t1():
@@ -384,28 +391,22 @@ class ARM_t1():
         #move_hand(1.0)
         move_arm_init()
 
-        print('try arm motion 1st')
-        arm.set_named_target("sweep_floor")
-        arm.go(wait=True)
-
         print("Navigating to search area...")
         num_type_sequence = "even" if self.num_attempted_item % 2 == 0 else "odd"
 
         if num_type_sequence == "even":
-            navigate_to('Search_Area_Front_Left')
+            state = navigate_to('Search_Area_Front_Left')
         elif num_type_sequence == "odd":
-            navigate_to('Search_Area_Front_Right')
+            state = navigate_to('Search_Area_Front_Right')
         
         self.num_attempted_item += 1
         # lower down the hand
-        
-        print("Calculating manipulating cost for each detected items...")
-        self.manipulation_cost()
-        print("after cost")
-
-        self.grab(self.target_item.x, self.target_item.y, self.target_item.z, collision_object)
-
-        self.place()
+        if state:
+            print("Calculating manipulating cost for each detected items...")
+            self.manipulation_cost()
+            print("after cost")
+            if self.grab(self.target_item.x, self.target_item.y, self.target_item.z):
+                self.place()
         
         # self.pick()
 
@@ -498,7 +499,7 @@ class ARM_t1():
         
         print("Target item to be grasped is " + self.target_item.Class + str(self.target_item.id))
 
-    def grab(self, x, y, z, collision_obj):
+    def grab(self, x, y, z):
             
        # Go to predefined arm pose based on the target object's height
         if self.target_item.z < 0.25:
@@ -514,19 +515,22 @@ class ARM_t1():
         # Open gripper
         self.gripper_grip(1.0)
         
-        # IK Preparation       
-        clear_octomap()
+        # # IK Preparation       
+        # clear_octomap()
         
-        # Create collision object at target item
-        collision_obj.sphere(x, y, z, CENTROID_RADIUS, "map", "centroid")
+        # # Create collision object at target item
+        # collision_obj.sphere(x, y, z, CENTROID_RADIUS, "map", "centroid")
         
-        while not self.move_base_link_pose_ik("map", x+self.hand_palm_base_link_offset,y+self.hand_palm_centroid_offset, 90):
-            clear_octomap()
-        rospy.sleep(1)      
+        base_trans = get_relative_coordinate("map", "base_link")
+        base_x = x - base_trans.translation.x + self.hand_palm_base_link_offset
+        base_y = y - base_trans.translation.y - self.hand_palm_centroid_offset
+
+        move_base_vel(0.2,0,0,base_x,0,0)
+        move_base_vel(0,0.2,0,0,base_y,0)    
         
         # Close gripper
         self.gripper_grip(0.05)
-        
+
         # Remove arm from the shelf
         #move_base_vel(-1.0,0,0)
         arm_joints = arm.get_current_joint_values()
@@ -534,7 +538,7 @@ class ARM_t1():
         arm.go(wait=True)
         
         arm.set_named_target("transport_object")
-        arm.go(wait=True)
+        return arm.go()
 
     def pick(self):
 
@@ -591,7 +595,6 @@ class ARM_t1():
             if base.go(wait=True):
                 break
         rospy.sleep(1.0)
-
 
     def sweep_floor(self):
         
