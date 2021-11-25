@@ -105,14 +105,13 @@ class ARM_t1():
         self.picked_food = 0
         self.target_item = None
         self.failed_item_list = []
-        self.hand_palm_base_link_offset = 0.078
-        self.hand_palm_centroid_offset = 0.04
         self.num_attempted_item = 0
 
         base.set_planner_id("PRM")
         base.set_goal_joint_tolerance(0.001)
         arm.set_goal_joint_tolerance(0.001)
-        # gripper.set_max_velocity_scaling_factor(0.6)
+        whole_body.set_goal_joint_tolerance(0.001)
+        # gripper.set_max_velocity_scaling_factor(0.2)
         
     
     def upload_planning_scene(self):
@@ -131,40 +130,40 @@ class ARM_t1():
 
     def check_entrance_floor(self):
         
-        # print("Checking entrance floor...")
-        # y_min_dis = 0.9
-        # # All items within "search area" are at least y distance away (wrt origin of "map" frame)?
+        print("Checking entrance floor...")
+        y_min_dis = 0.9
+        # All items within "search area" are at least y distance away (wrt origin of "map" frame)?
 
-        # arm.set_named_target("neutral")
-        # arm.go(wait=True)
-        # # Head right
-        # move_head_pan(1.2)
-        # # Head down
-        # move_head_tilt(-0.9)
-        # #wait for robot to finish move to pose
-        # rospy.sleep(3)
+        arm.set_named_target("neutral")
+        arm.go(wait=True)
+        # Head right
+        move_head_pan(1.2)
+        # Head down
+        move_head_tilt(-0.9)
+        #wait for robot to finish move to pose
+        rospy.sleep(3)
 
-        # # Trigger YOLO detection
-        # yolo.clear_list(True)
-        # yolo.detect(True)
-        # rospy.sleep(3)
-        # detected_item_list = yolo.detected_items()
+        # Trigger YOLO detection
+        yolo.clear_list(True)
+        yolo.detect(True)
+        rospy.sleep(3)
+        detected_item_list = yolo.detected_items()
 
-        # # Head central
-        # move_head_pan(0.0)
-        # move_arm_init()
+        # Head central
+        move_head_pan(0.0)
+        move_arm_init()
 
-        # for item in range(len(detected_item_list)):
-        #     print(detected_item_list[item])
-        #     if detected_item_list[item].y < y_min_dis:
-        #         print("Search area has items near outermost edge, might cause collision during navigation, decided not to open drawers...")
-        #         break
-        # else:
-        #     print("Decide to open drawers...")
-        #     self.grasp_tool = True
-        #     self.grasp_shape_item = True
-        self.open_drawers()        
-
+        for item in range(len(detected_item_list)):
+            print(detected_item_list[item])
+            if detected_item_list[item].y < y_min_dis:
+                print("Search area has items near outermost edge, might cause collision during navigation, decided not to open drawers...")
+                break
+        else:
+            print("Decide to open drawers...")
+            self.grasp_tool = True
+            self.grasp_shape_item = True
+            self.open_drawers()        
+            
 
     def open_drawers(self):
 
@@ -325,7 +324,7 @@ class ARM_t1():
             navigate_to('Search_Area_Front_Left')
         elif num_type_sequence == "odd":
             navigate_to('Search_Area_Front_Right')
-        
+
         self.num_attempted_item += 1
 
         print("Calculating manipulating cost for each detected items...")
@@ -334,13 +333,24 @@ class ARM_t1():
         
         collision_object.sphere(self.target_item.x, self.target_item.y, self.target_item.z, CENTROID_RADIUS, "map", "centroid")
         rospy.sleep(1.0)
-        
+
         print("Clear octomap...")
         clear_octomap()
-        move_hand(1.0)
-        
-        self.pick()
 
+        if self.target_item.z < 0.25:  
+            end_effector_z_min = EEF_POINT_DOWN_FLOOR_Z_MIN
+        elif self.target_item.z > 0.38 and self.target_item.x > 0.35:
+            end_effector_z_min = EEF_POINT_DOWN_LONG_TABLE_B_Z_MIN
+            # Raise arm up far above table to avoid collision in next execution 
+            arm.set_named_target("neutral_z_max")
+            arm.go(wait=True)
+        elif self.target_item.z > 0.58:
+            end_effector_z_min = EEF_POINT_DOWN_TALL_TABLE_Z_MIN 
+            arm.set_named_target("neutral_z_max")
+            arm.go(wait=True)
+            
+        
+        self.pick(end_effector_z_min)
         picked_up = object_grasping()
         if not picked_up:
             self.failed_item_list.append(self.target_item)
@@ -413,9 +423,9 @@ class ARM_t1():
             if (detected_item_list[item].Class in HIGH_GRASP_DIFFICUTY):
                 GRASP_COST = 1.0
             elif (detected_item_list[item].Class in MEDIUM_GRASP_DIFFICUTY):
-                GRASP_COST = 0.92
-            elif (detected_item_list[item].Class in LOW_GRASP_DIFFICUTY):
                 GRASP_COST = 0.85
+            elif (detected_item_list[item].Class in LOW_GRASP_DIFFICUTY):
+                GRASP_COST = 0.70
             
             robot_item_distance = math.sqrt( (map_base.translation.x - detected_item_list[item].x) ** 2 + (map_base.translation.y - detected_item_list[item].y) ** 2 + (map_base.translation.z - detected_item_list[item].z) )
             total_cost = (robot_item_distance / shortest_robot_item_distance) * GRASP_COST
@@ -431,92 +441,57 @@ class ARM_t1():
         print("Target item to be grasped is " + self.target_item.Class + str(self.target_item.id))
 
 
-    def pick(self):
+    def pick(self, end_effector_z_min):
 
         self.upload_planning_scene()
         print("Go to pick-up item...")
-        print(self.target_item)
-        clear_octomap()
+        
+        if self.target_item.z < end_effector_z_min:
+            self.target_item.z = end_effector_z_min
 
-        if self.target_item.z < 0.25:
-            self.sweep_floor()
-        elif self.target_item.z > 0.38 and self.target_item.x > 0.35:
-            self.sweep_long_table_b()
-        elif self.target_item.z > 0.58:
-            self.sweep_tall_table() 
-
-            
-    def move_base_forward(self, direction):
-
-        base_variable_values = base.get_current_joint_values()
-        base_variable_values[0] += direction * ( SAFETY_PRE_GRASP_APPROACH_DIS - self.hand_palm_centroid_offset ) 
-        base.set_joint_value_target(base_variable_values)
-        for i in range(15):
-            print("Moving base forward to item, trial " + str(i))
-            if base.go(wait=True):
-                break
+        # Allign the gripper above the localized items
+        move_whole_body_pose_ik("map", self.target_item.x, self.target_item.y, (self.target_item.z + SAFETY_PRE_GRASP_APPROACH_DIS), 0, 180, 90)
+        # Lock the orientation of gripper, and move down along z-axis to item's pose
+        eef_map_orientation_constraint(True, 0, 180, 90)
+        # move_end_effector_by_line([0, 0, 1], (- SAFETY_PRE_GRASP_APPROACH_DIS + 0.02))
+        arm_joint_values = arm.get_current_joint_values()
+        # arm_pose.position.z += (- SAFETY_PRE_GRASP_APPROACH_DIS + 0.02)
+        # arm.set_pose_target(arm_pose)
+        if arm_joint_values[0] > 0.22:
+            arm_joint_values[0] += (- SAFETY_PRE_GRASP_APPROACH_DIS + 0.025) # z -= 0.2
+            arm.set_joint_value_target(arm_joint_values)
+            clear_octomap()
+            rospy.sleep(1.0)
+            if arm.go(wait=True):
+                print("Succefully move arm downward...")
+            else:
+                print("failed to move lift joint downward..")
+        else:
+            clear_octomap()
+            rospy.sleep(1.0)
+            move_whole_body_pose_ik("map", self.target_item.x, self.target_item.y, (self.target_item.z + 0.025), 0, 180, 90)
+        # Close gripper
         rospy.sleep(1.0)
+        if move_hand(0.0) == False:
+            move_hand(0.0)
 
+        # Upload Approx Grasping Object
+        # BOX_LENGTH = 0.1
+        # collision_object.box(0, 0, 0.1, BOX_LENGTH, BOX_LENGTH, BOX_LENGTH, "hand_palm_link", "approx_grasped_item")
+        # collision_object.attach("approx_grasped_item")
 
-    def sweep_floor(self):
-        
-        # Allign the robot's base with localized items
-        print("Sweep floor...")
-        rospy.sleep(1.0)
-        move_base_pose_ik("map", self.target_item.x + self.hand_palm_base_link_offset , self.target_item.y - SAFETY_PRE_GRASP_APPROACH_DIS, 90)
-        
-        arm.set_named_target("sweep_floor")
-        arm.go(wait=True)
-        rospy.sleep(2.0)
-        
-        # Moving base forward to pick after setting the pre-defined arm's pose
-        self.move_base_forward(1)
-        move_hand(0.0)
+        # Retract the gripper up along z-axis
+        # move_end_effector_by_line([0, 0, 1], SAFETY_POST_GRASP_RETRACT_DIS) 
+        arm_joint_values = arm.get_current_joint_values()
+        arm_joint_values[0] += SAFETY_POST_GRASP_RETRACT_DIS # z += 0.2
+        arm.set_joint_value_target(arm_joint_values)
+        if arm.go(wait=True) == False:
+            print("failed to move lift joint upward..")
+            move_whole_body_pose_ik("map", self.target_item.x, self.target_item.y, (self.target_item.z + SAFETY_POST_GRASP_RETRACT_DIS), 0, 180, 90)
+        # Disable the orientation constraint
+        eef_map_orientation_constraint(False, 0, 180, 90)
 
-
-    def sweep_long_table_b(self):
-
-        # Allign the robot's base with localized items
-        print("Sweep long table b...")
-        rospy.sleep(1.0)
-        move_base_pose_ik("map", self.target_item.x + self.hand_palm_base_link_offset , self.target_item.y - SAFETY_PRE_GRASP_APPROACH_DIS, 90)
-
-        arm.set_named_target("sweep_long_table_b")
-        arm.go(wait=True)
-        rospy.sleep(2.0)
-        
-        # Raise arm up far above table to avoid collision in next execution 
-        # Moving base forward to pick after setting the pre-defined arm's pose
-        self.move_base_forward(1)
-        # Close the gripper
-        move_hand(0.0)
-        # Retract
-        arm.set_named_target("neutral_z_max")
-        arm.go(wait=True)
-        rospy.sleep(2.0)
-        move_base_vel(-0.1, 0, 0, SAFETY_PRE_GRASP_APPROACH_DIS, 0, 0)
-
-
-    def sweep_tall_table(self):
-
-        # Allign the robot's base with localized items
-        print("Sweep tall table...")
-        rospy.sleep(1.0)
-        move_base_pose_ik("map", self.target_item.x + self.hand_palm_base_link_offset , self.target_item.y - SAFETY_PRE_GRASP_APPROACH_DIS, 90)
-
-        # Raise arm up far above table to avoid collision in next execution 
-        arm.set_named_target("sweep_tall_table")
-        arm.go(wait=True)
-        rospy.sleep(2.0)
-        
-        # Moving base forward to pick after setting the pre-defined arm's pose
-        self.move_base_forward(1)
-        move_hand(0.0)
-        arm.set_named_target("neutral_z_max")
-        arm.go(wait=True)
-        rospy.sleep(2.0)
-        # Retract
-        move_base_vel(-0.1, 0, 0, SAFETY_PRE_GRASP_APPROACH_DIS, 0, 0)
+        move_base_vel(-0.1, 0, 0, -0.1, 0, 0)
 
 
     def place(self):
