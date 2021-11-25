@@ -3,42 +3,42 @@
 # Joint limits can be turned off with [has_velocity_limits, has_acceleration_limits]
 joint_limits:
   arm_flex_joint:
-    has_velocity_limits: true
+    has_velocity_limits: false
     max_velocity: 1.2
     has_acceleration_limits: false
     max_acceleration: 0
   arm_lift_joint:
-    has_velocity_limits: true
+    has_velocity_limits: false
     max_velocity: 0.2
     has_acceleration_limits: false
     max_acceleration: 0
   arm_roll_joint:
-    has_velocity_limits: true
+    has_velocity_limits: false
     max_velocity: 2
     has_acceleration_limits: false
     max_acceleration: 0
   hand_motor_joint:
-    has_velocity_limits: true
+    has_velocity_limits: false
     max_velocity: 0.3
     has_acceleration_limits: false
     max_acceleration: 0
   head_pan_joint:
-    has_velocity_limits: true
+    has_velocity_limits: false
     max_velocity: 1
     has_acceleration_limits: false
     max_acceleration: 0
   head_tilt_joint:
-    has_velocity_limits: true
+    has_velocity_limits: false
     max_velocity: 1
     has_acceleration_limits: false
     max_acceleration: 0
   wrist_flex_joint:
-    has_velocity_limits: true
+    has_velocity_limits: false
     max_velocity: 1.5
     has_acceleration_limits: false
     max_acceleration: 0
   wrist_roll_joint:
-    has_velocity_limits: true
+    has_velocity_limits: false
     max_velocity: 1.5
     has_acceleration_limits: false
     max_acceleration: 0
