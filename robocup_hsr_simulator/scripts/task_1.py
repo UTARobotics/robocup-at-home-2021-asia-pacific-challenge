@@ -685,7 +685,9 @@ if __name__ == "__main__":
                     step += 1
                 else:
                     #Task2 starts here
-                    t2.task_2()
+                    if t2.task_2():
+                        print("=====COMPLETE TASK2=====")
+                        step += 1
             elif  step == 4:
                 print("reset robot")
                 robot_reset()
