@@ -9,6 +9,48 @@ from param import *
 from deepsparse_yolo_msgs.msg import Object, Objects
 from deepsparse_yolo_msgs.srv import SetDetectState, SetDetectStateResponse, RemoveObject, RemoveObjectResponse, ClearObjects, ClearObjectsResponse
 
+def navigate_to(location):
+
+    # To scan any obstacle that is unable to be detected by laser sensor
+    move_head_tilt(-1)
+
+    success = False
+
+    if location == 'Drawers':
+        move_base_goal(0.15, 0.5, -90)
+        move_head_tilt(-0.5)
+    if location == 'Search_Area_Front_Left':
+        move_base_goal(0.08, 0.4, 90)
+        move_head_tilt(-0.55)
+    if location == 'Search_Area_Front_Right':
+        move_base_goal(1.0, 0.5, 90)
+        move_head_tilt(-0.72)
+    if location == 'Long_Table_A_Containers':
+        move_base_goal(1.1148, 0.075, -90)
+        move_head_tilt(-0.9)
+    if location == 'Long_Table_A_Trays':
+        move_base_goal(1.7348, 0.075, -90)
+        move_head_tilt(-0.9)
+    if location == 'Bins':
+        move_base_goal(2.7048, 0.075, -90)
+        move_head_tilt(-0.9)
+    if location == 'Tall_Table':
+        move_base_goal(0.15, 1.20, 90)
+        move_head_tilt(-0.5)
+    if location == 'Long_Table_B':
+        move_base_goal(1.0, 0.75, 90)
+        move_head_tilt(-0.5)
+    if location == 'Shelf':
+        move_base_goal(2.28, 3.84, 95)
+        move_head_tilt(-0.3)
+    if location == 'Person':
+        move_base_goal(1.12, 3.46, 180)
+        move_head_tilt(0.3)
+
+    robot.upload_planning_scene()
+    rospy.sleep(1)
+
+    return success
 
 # ------YOLO-------
 class YOLO_t1():
@@ -112,6 +154,7 @@ class ARM_t1():
         base.set_planner_id("PRM")
         base.set_goal_joint_tolerance(0.001)
         arm.set_goal_joint_tolerance(0.001)
+        self.upload_planning_scene()
         # gripper.set_max_velocity_scaling_factor(0.6)
         
     
@@ -315,9 +358,13 @@ class ARM_t1():
     def search(self):
 
         # Fully "open" the gripper
-        move_hand(1.0)
+        #move_hand(1.0)
         move_arm_init()
-        
+
+        print('try arm motion 1st')
+        arm.set_named_target("sweep_floor")
+        arm.go(wait=True)
+
         print("Navigating to search area...")
         num_type_sequence = "even" if self.num_attempted_item % 2 == 0 else "odd"
 
@@ -327,37 +374,22 @@ class ARM_t1():
             navigate_to('Search_Area_Front_Right')
         
         self.num_attempted_item += 1
-        print("Move whole body 1 here...")
-        # move hand toward (we need to detect object here)
-        arm.set_named_target("sweep_floor")
-        if arm.go(wait=True):
-            print("sweep_floor Pose")
-        rospy.sleep(2.0)
-        arm.set_named_target("sweep_long_table_b")
-        if arm.go(wait=True):
-            print("sweep_long_table_b Pose")
-        rospy.sleep(2.0)
-        arm.set_named_target("sweep_long_table_b")
-        if arm.go(wait=True):
-            print("sweep_long_table_b Pose")
-        rospy.sleep(2.0)
-        arm.set_named_target("sweep_tall_table")
-        if arm.go(wait=True):
-            print("sweep_tall_table Pose")
-        rospy.sleep(2.0)
-        return True
         # lower down the hand
         
-        # print("Calculating manipulating cost for each detected items...")
-        # self.manipulation_cost()
-        # print("after cost")
+        print("Calculating manipulating cost for each detected items...")
+        self.manipulation_cost()
+        print("after cost")
         
-        # collision_object.sphere(self.target_item.x, self.target_item.y, self.target_item.z, CENTROID_RADIUS, "map", "centroid")
-        # rospy.sleep(1.0)
+        collision_object.sphere(self.target_item.x, self.target_item.y, self.target_item.z, CENTROID_RADIUS, "map", "centroid")
+        rospy.sleep(1.0)
         
-        # print("Clear octomap...")
-        # clear_octomap()
-        # move_hand(1.0)
+        print("Clear octomap...")
+        clear_octomap()
+        move_hand(1.0)
+
+        self.pick_test()
+
+        self.place()
         
         # self.pick()
 
@@ -453,7 +485,6 @@ class ARM_t1():
 
     def pick(self):
 
-        self.upload_planning_scene()
         print("Go to pick-up item...")
         print(self.target_item)
         clear_octomap()
@@ -465,7 +496,38 @@ class ARM_t1():
         elif self.target_item.z > 0.58:
             self.sweep_tall_table() 
 
-            
+    def pick_test(self):
+        print("Go to pick-up item...")
+        print(self.target_item)
+        clear_octomap()
+
+        if self.target_item.z < 0.25:
+            print('test pick here 1')
+            arm.set_named_target("sweep_floor")
+            arm.go(wait=True)
+            clear_octomap()
+            move_base_pose_ik("map", self.target_item.x + self.hand_palm_base_link_offset , self.target_item.y, 90)
+            rospy.sleep(2.0)
+            move_hand(0.0)
+        elif self.target_item.z > 0.38 and self.target_item.x > 0.35:
+            print('test pick here 2')
+            arm.set_named_target("sweep_long_table_b")
+            arm.go(wait=True)
+            rospy.sleep(2.0)
+            clear_octomap()
+            move_base_pose_ik("map", self.target_item.x + self.hand_palm_base_link_offset , self.target_item.y, 90)
+            rospy.sleep(2.0)
+            move_hand(0.0)
+        elif self.target_item.z > 0.58:
+            print('test pick here 3')
+            arm.set_named_target("sweep_tall_table")
+            arm.go(wait=True)
+            rospy.sleep(2.0)
+            clear_octomap()
+            move_base_pose_ik("map", self.target_item.x + self.hand_palm_base_link_offset , self.target_item.y, 90)
+            rospy.sleep(2.0)
+            move_hand(0.0)
+
     def move_base_forward(self, direction):
 
         base_variable_values = base.get_current_joint_values()
@@ -599,55 +661,12 @@ class ARM_t1():
             
             rospy.sleep(1.0)
             move_hand(1.0)
+            self.target_item = None
             # collision_object.dettach("approx_grasped_item")
             # collision_object.scene.remove_world_object("approx_grasped_item")
 
         except EOFError:
             print("Error!!!")
-
-
-def navigate_to(location):
-
-    # To scan any obstacle that is unable to be detected by laser sensor
-    move_head_tilt(-1)
-
-    success = False
-
-    if location == 'Drawers':
-        move_base_goal(0.15, 0.5, -90)
-        move_head_tilt(-0.5)
-    if location == 'Search_Area_Front_Left':
-        move_base_goal(0.08, 0.4, 90)
-        move_head_tilt(-0.55)
-    if location == 'Search_Area_Front_Right':
-        move_base_goal(1.0, 0.5, 90)
-        move_head_tilt(-0.72)
-    if location == 'Long_Table_A_Containers':
-        move_base_goal(1.1148, 0.075, -90)
-        move_head_tilt(-0.9)
-    if location == 'Long_Table_A_Trays':
-        move_base_goal(1.7348, 0.075, -90)
-        move_head_tilt(-0.9)
-    if location == 'Bins':
-        move_base_goal(2.7048, 0.075, -90)
-        move_head_tilt(-0.9)
-    if location == 'Tall_Table':
-        move_base_goal(0.15, 1.20, 90)
-        move_head_tilt(-0.5)
-    if location == 'Long_Table_B':
-        move_base_goal(1.0, 0.75, 90)
-        move_head_tilt(-0.5)
-    if location == 'Shelf':
-        move_base_goal(2.28, 3.84, 95)
-        move_head_tilt(-0.3)
-    if location == 'Person':
-        move_base_goal(1.12, 3.46, 180)
-        move_head_tilt(0.3)
-
-    robot.upload_planning_scene()
-    rospy.sleep(1)
-
-    return success
 
 
 def robot_reset():
@@ -692,8 +711,7 @@ if __name__ == "__main__":
                         check_entrance = False
                     else:
                         try:
-                            if robot.search():
-                                break
+                            robot.search():
                         except:
                             pass
             elif  step == 2:
