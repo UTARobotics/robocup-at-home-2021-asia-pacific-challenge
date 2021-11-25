@@ -327,12 +327,17 @@ class ARM_t1():
             navigate_to('Search_Area_Front_Right')
         
         self.num_attempted_item += 1
-
+        print("Move whole body 1 here...")
         # move hand toward (we need to detect object here)
-        move_wholebody_ik(0.9, 1.5, 0.2, 180, 0, 90)
-        # lower down the hand
-        move_wholebody_ik(0.9, 1.5, 0.08, 180, 0, 90)
+        if move_wholebody_ik(0.9, 1.5, 0.2, 180, 0, 90):
+            print("Yay... achieved target")
+            print("Move whole body 2 here...")
+            if move_wholebody_ik(0.9, 1.5, 0.08, 180, 0, 90):
+                print("Yay... achieved target again")
+                return True
 
+        # lower down the hand
+        
         # print("Calculating manipulating cost for each detected items...")
         # self.manipulation_cost()
         # print("after cost")
@@ -677,7 +682,8 @@ if __name__ == "__main__":
                         check_entrance = False
                     else:
                         try:
-                            robot.search()
+                            if robot.search():
+                                break
                         except:
                             pass
             elif  step == 2:

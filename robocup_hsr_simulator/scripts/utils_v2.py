@@ -202,7 +202,39 @@ base = moveit_commander.MoveGroupCommander("base")
 whole_body = moveit_commander.MoveGroupCommander("whole_body")
 arm.allow_replanning(True)
 
+def move_wholebody_ik(x, y, z, roll, pitch, yaw):
+    u"""ロボットを全身の逆運動学で制御する関数
 
+    引数：
+        x (float): エンドエフェクタの目標x値 [m]
+        y (float): エンドエフェクタの目標y値 [m]
+        z (float): エンドエフェクタの目標z値 [m]
+        roll (float): エンドエフェクタの目標roll値 [deg]
+        pitch (float): エンドエフェクタの目標pitch値 [deg]
+        yaw (float): エンドエフェクタの目標yaw値 [deg]
+
+    返り値:
+        正しく動作すればTrue, そうでなければFalse
+
+    """
+
+    p = PoseStamped()
+
+    # "map"座標を基準座標に指定
+    p.header.frame_id = "/map"
+
+    # エンドエフェクタの目標位置姿勢のx,y,z座標をセットします
+    p.pose.position.x = x
+    p.pose.position.y = y
+    p.pose.position.z = z
+
+    # オイラー角をクオータニオンに変換します
+    p.pose.orientation = quaternion_from_euler(roll, pitch, yaw)
+
+    # 目標位置姿勢をセット
+    whole_body.set_pose_target(p)
+    return whole_body.go()
+    
 def move_wholebody_position_ik(x, y, z):
 
     # p = PoseStamped()
