@@ -328,31 +328,36 @@ class ARM_t1():
         
         self.num_attempted_item += 1
 
-        print("Calculating manipulating cost for each detected items...")
-        self.manipulation_cost()
-        print("after cost")
-        
-        collision_object.sphere(self.target_item.x, self.target_item.y, self.target_item.z, CENTROID_RADIUS, "map", "centroid")
-        rospy.sleep(1.0)
-        
-        print("Clear octomap...")
-        clear_octomap()
-        move_hand(1.0)
-        
-        self.pick()
+        # move hand toward (we need to detect object here)
+        move_wholebody_ik(0.9, 1.5, 0.2, 180, 0, 90)
+        # lower down the hand
+        move_wholebody_ik(0.9, 1.5, 0.08, 180, 0, 90)
 
-        picked_up = object_grasping()
-        if not picked_up:
-            self.failed_item_list.append(self.target_item)
-            for i in range (len(self.failed_item_list)):
-                print("Failed item: " + self.failed_item_list[i].Class)
-        else:
-            move_arm_init()
-            move_arm_init()
+        # print("Calculating manipulating cost for each detected items...")
+        # self.manipulation_cost()
+        # print("after cost")
+        
+        # collision_object.sphere(self.target_item.x, self.target_item.y, self.target_item.z, CENTROID_RADIUS, "map", "centroid")
+        # rospy.sleep(1.0)
+        
+        # print("Clear octomap...")
+        # clear_octomap()
+        # move_hand(1.0)
+        
+        # self.pick()
+
+        # picked_up = object_grasping()
+        # if not picked_up:
+        #     self.failed_item_list.append(self.target_item)
+        #     for i in range (len(self.failed_item_list)):
+        #         print("Failed item: " + self.failed_item_list[i].Class)
+        # else:
+        #     move_arm_init()
+        #     move_arm_init()
             
-            self.place() 
+        #     self.place() 
 
-            move_base_vel(-0.1, 0, 0, -0.1, 0, 0)
+        #     move_base_vel(-0.1, 0, 0, -0.1, 0, 0)
 
 
     def manipulation_cost(self):
@@ -638,7 +643,7 @@ def robot_reset():
 
 if __name__ == "__main__":
     
-    check_entrance = True
+    check_entrance = False
     step = -1
     rospy.init_node("main_task")
     r = rospy.Rate(10)
