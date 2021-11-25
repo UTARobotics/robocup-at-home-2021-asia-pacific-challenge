@@ -153,7 +153,7 @@ class ARM_t1():
         self.target_item = None
         self.failed_item_list = []
         self.hand_palm_base_link_offset = 0.078
-        self.hand_palm_centroid_offset = 0.04
+        self.hand_palm_centroid_offset = 0.03
         self.num_attempted_item = 0
 
         base.set_planner_id("PRM")
@@ -162,6 +162,7 @@ class ARM_t1():
         self.upload_planning_scene()
         self.step = 0
         self.got_target = False
+        self.item = ''
         # gripper.set_max_velocity_scaling_factor(0.6)
 
         
@@ -415,10 +416,57 @@ class ARM_t1():
                     self.step +=1
         elif self.step == 2:
             print("placing item...")
-            while not self.place():
-                rospy.sleep(1)
-            self.step == 0
-        
+            place = ''
+            if self.target_item.Class in FOOD:
+                place = 'Long_Table_A_Trays'
+                self.item = 'tray'
+            elif self.target_item.Class in KITCHEN_ITEMS:
+                place = 'Long_Table_A_Containers'
+                self.item = 'b_container'
+            elif self.target_item.Class in ORIENTATION_ITEMS:
+                place = 'Long_Table_A_Containers'
+                self.item = 'a_container'
+            elif self.target_item.Class in TOOL_ITEMS:
+                place = 'Bins'    
+                self.item = 'black_bin'
+            elif self.target_item.Class in SHAPE_ITEMS:
+                place = 'Bins'
+                self.item = 'green_bin'
+            elif self.target_item.Class in TASK_ITEMS:
+                place = 'Bins'
+                self.item = 'green_bin'
+            else:
+                place = 'Bins'
+                self.item = 'black_bin'
+            state = navigate_to(place)
+            if state:
+                print("reached place start detect...")
+                yolo.clear_list(True)
+                yolo.detect(True)
+                while not yolo.finished_detection():
+                    print("===Waiting===")
+                    rospy.sleep(1.0)
+                self.step += 1
+        elif self.step == 3:
+            print("got on yolo...")
+            plc = yolo.get_item_info(self.item)
+            print('moving to tall table pose')
+            arm.set_named_target('grip_down_tall_table')
+            arm.go(wait=True)
+            print('moving to place')
+            eef_trans = get_relative_coordinate("map", "hand_palm_link")
+            base_trans = get_relative_coordinate("map", "base_link")
+            x_diff = plc.x - eef_trans.translation.x 
+            y_diff = plc.y - eef_trans.translation.y
+            state = self.move_base_link_pose_ik( "map", base_trans.translation.x + x_diff , base_trans.translation.y + y_diff, -90)
+
+            if state:
+                self.target_item = None
+                self.item = ''
+                yolo.clear_list(True)
+                return move_hand(1.0)
+                self.step = 0
+
         # self.pick()
         # picked_up = object_grasping()
         # if not picked_up:
@@ -544,9 +592,9 @@ class ARM_t1():
         move_hand(0.05)
         # Remove arm from the shelf
         #move_base_vel(-1.0,0,0)
-        move_end_effector_by_line([0, 0, 1], z_diff)
+        # move_end_effector_by_line([0, 0, 1], z_diff)
         
-        arm.set_named_target("transport_object")
+        arm.set_named_target("go")
         return arm.go(wait=True)
 
     def pick(self, end_effector_z_min):
