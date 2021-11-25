@@ -711,7 +711,7 @@ if __name__ == "__main__":
                         check_entrance = False
                     else:
                         try:
-                            robot.search():
+                            robot.search()
                         except:
                             pass
             elif  step == 2:
