@@ -161,6 +161,7 @@ class ARM_t1():
         arm.set_goal_joint_tolerance(0.005)
         self.upload_planning_scene()
         self.step = 0
+        self.got_target = False
         # gripper.set_max_velocity_scaling_factor(0.6)
         
     
@@ -398,15 +399,16 @@ class ARM_t1():
             
             self.num_attempted_item += 1
             if state:
+                print("Calculating manipulating cost for each detected items...")
+                self.manipulation_cost()
+                print("after cost")
                 self.step +=1
         elif self.step == 1:
-            print("Calculating manipulating cost for each detected items...")
-            self.manipulation_cost()
-            print("after cost")
             print("attempt grabbing...")
-            state = self.grab(self.target_item.x, self.target_item.y, self.target_item.z)
-            if state:
-                self.step +=1
+            if self.got_target:
+                state = self.grab(self.target_item.x, self.target_item.y, self.target_item.z)
+                if state:
+                    self.step +=1
         elif self.step == 2:
             print("placing item...")
             state = self.place()
@@ -439,7 +441,7 @@ class ARM_t1():
         lowest_total_cost = 999999999999999 # Infinity
         print("shortest robot item distance: ")
         print(str(shortest_robot_item_distance))
-
+        self.got_target = False
         yolo.clear_list(True)
         yolo.detect(True)
 
@@ -501,6 +503,7 @@ class ARM_t1():
             if (total_cost < lowest_total_cost) and (aborted != True):
                 lowest_total_cost = total_cost
                 self.target_item = detected_item_list[item]
+                self.got_target = True
                 print("target_item = ", self.target_item)
             print("next")
             r.sleep()
@@ -508,8 +511,7 @@ class ARM_t1():
         print("Target item to be grasped is " + self.target_item.Class + str(self.target_item.id))
 
     def grab(self, x, y, z):
-            
-       # Go to predefined arm pose based on the target object's height
+        # Go to predefined arm pose based on the target object's height
         if self.target_item.z < 0.25:
             pose = "sweep_floor"
         elif self.target_item.z > 0.38 and self.target_item.x > 0.35:
@@ -521,17 +523,12 @@ class ARM_t1():
         arm.go(wait=True)
         print('open gripper')
         # Open gripper
-        self.gripper_grip(1.0)
-        
-        # # IK Preparation       
-        # clear_octomap()
-        
-        # # Create collision object at target item
-        # collision_obj.sphere(x, y, z, CENTROID_RADIUS, "map", "centroid")
+        move_hand(1.0)
+    
         print('move_base')
         base_trans = get_relative_coordinate("map", "base_link")
-        base_x = x - base_trans.translation.x + self.hand_palm_base_link_offset
-        base_y = y - base_trans.translation.y - self.hand_palm_centroid_offset
+        base_y =  -1*(x - base_trans.translation.x + self.hand_palm_base_link_offset)
+        base_x = y - base_trans.translation.y - self.hand_palm_centroid_offset
 
         move_base_vel(0.2,0,0,base_x,0,0)
         move_base_vel(0,0.2,0,0,base_y,0)    
@@ -619,7 +616,6 @@ class ARM_t1():
         self.move_base_forward(1)
         move_hand(0.0)
 
-
     def sweep_long_table_b(self):
 
         # Allign the robot's base with localized items
@@ -642,7 +638,6 @@ class ARM_t1():
         rospy.sleep(2.0)
         move_base_vel(-0.1, 0, 0, SAFETY_PRE_GRASP_APPROACH_DIS, 0, 0)
 
-
     def sweep_tall_table(self):
 
         # Allign the robot's base with localized items
@@ -663,7 +658,6 @@ class ARM_t1():
         rospy.sleep(2.0)
         # Retract
         move_base_vel(-0.1, 0, 0, SAFETY_PRE_GRASP_APPROACH_DIS, 0, 0)
-
 
     def place(self):
 
@@ -745,7 +739,6 @@ class ARM_t1():
 
         except EOFError:
             print("Error!!!")
-
 
 def robot_reset():
     move_hand(1.0)
