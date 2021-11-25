@@ -450,21 +450,13 @@ class ARM_t1():
         elif self.step == 3:
             print("got on yolo...")
             plc = yolo.get_item_info(self.item)
-            print('moving to tall table pose')
-            arm.set_named_target('grip_down_tall_table')
-            arm.go(wait=True)
             print('moving to place')
-            eef_trans = get_relative_coordinate("map", "hand_palm_link")
-            base_trans = get_relative_coordinate("map", "base_link")
-            x_diff = plc.x - eef_trans.translation.x 
-            y_diff = plc.y - eef_trans.translation.y
-            state = self.move_base_link_pose_ik( "map", base_trans.translation.x + x_diff , base_trans.translation.y + y_diff, -90)
-
+            state = move_whole_body_pose_ik("map", plc.x, plc.y, *CONTAINER_A)
             if state:
+                move_hand(1.0)
                 self.target_item = None
                 self.item = ''
                 yolo.clear_list(True)
-                return move_hand(1.0)
                 self.step = 0
 
         # self.pick()
@@ -589,7 +581,7 @@ class ARM_t1():
 
         print('close')
         # Close gripper
-        move_hand(0.05)
+        move_hand(0.0)
         # Remove arm from the shelf
         #move_base_vel(-1.0,0,0)
         # move_end_effector_by_line([0, 0, 1], z_diff)
@@ -806,7 +798,7 @@ def robot_reset():
 
 if __name__ == "__main__":
     
-    check_entrance = False
+    check_entrance = True
     step = -1
     rospy.init_node("main_task")
     r = rospy.Rate(10)
