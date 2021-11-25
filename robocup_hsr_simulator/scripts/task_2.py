@@ -413,6 +413,12 @@ class Task_2(object):
         #--------------Give item 2 person -------------
         self.give_food()
         #----------------------------------------------
+        
+        while not (self.command.count('done') == 1):
+            rospy.sleep(1.0)
+           
+        return True
+            
 
 if __name__ == '__main__':
     rospy.logwarn('Program START')
