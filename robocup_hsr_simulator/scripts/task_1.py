@@ -329,13 +329,23 @@ class ARM_t1():
         self.num_attempted_item += 1
         print("Move whole body 1 here...")
         # move hand toward (we need to detect object here)
-        if move_wholebody_ik(0.9, 1.5, 0.2, 180, 0, 90):
-            print("Yay... achieved target")
-            print("Move whole body 2 here...")
-            if move_wholebody_ik(0.9, 1.5, 0.08, 180, 0, 90):
-                print("Yay... achieved target again")
-                return True
-
+        arm.set_named_target("sweep_floor")
+        if arm.go(wait=True):
+            print("sweep_floor Pose")
+        rospy.sleep(2.0)
+        arm.set_named_target("sweep_long_table_b")
+        if arm.go(wait=True):
+            print("sweep_long_table_b Pose")
+        rospy.sleep(2.0)
+        arm.set_named_target("sweep_long_table_b")
+        if arm.go(wait=True):
+            print("sweep_long_table_b Pose")
+        rospy.sleep(2.0)
+        arm.set_named_target("sweep_tall_table")
+        if arm.go(wait=True):
+            print("sweep_tall_table Pose")
+        rospy.sleep(2.0)
+        return True
         # lower down the hand
         
         # print("Calculating manipulating cost for each detected items...")
