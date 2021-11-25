@@ -160,6 +160,7 @@ class ARM_t1():
         base.set_goal_joint_tolerance(0.005)
         arm.set_goal_joint_tolerance(0.005)
         self.upload_planning_scene()
+        self.step = 0
         # gripper.set_max_velocity_scaling_factor(0.6)
         
     
@@ -385,26 +386,33 @@ class ARM_t1():
 
         # Fully "open" the gripper
         #move_hand(1.0)
-        move_arm_init()
+        if self.step == 0:
+            move_arm_init()
+            print("Navigating to search area...")
+            num_type_sequence = "even" if self.num_attempted_item % 2 == 0 else "odd"
 
-        print("Navigating to search area...")
-        num_type_sequence = "even" if self.num_attempted_item % 2 == 0 else "odd"
-
-        if num_type_sequence == "even":
-            state = navigate_to('Search_Area_Front_Left')
-        elif num_type_sequence == "odd":
-            state = navigate_to('Search_Area_Front_Right')
-        
-        self.num_attempted_item += 1
-        # lower down the hand
-        if state:
+            if num_type_sequence == "even":
+                state = navigate_to('Search_Area_Front_Left')
+            elif num_type_sequence == "odd":
+                state = navigate_to('Search_Area_Front_Right')
+            
+            self.num_attempted_item += 1
+            if state:
+                self.step +=1
+        elif self.step == 1:
             print("Calculating manipulating cost for each detected items...")
             self.manipulation_cost()
             print("after cost")
             print("attempt grabbing...")
-            if self.grab(self.target_item.x, self.target_item.y, self.target_item.z):
-                print("grabbed")
-                self.place()
+            state = self.grab(self.target_item.x, self.target_item.y, self.target_item.z)
+            if state:
+                self.step +=1
+        elif self.step == 2:
+            print("placing item...")
+            state = self.place()
+            if state:
+                self.step == 0
+
         
         # self.pick()
 
@@ -420,7 +428,6 @@ class ARM_t1():
         #     self.place() 
 
         #     move_base_vel(-0.1, 0, 0, -0.1, 0, 0)
-
 
     def manipulation_cost(self):
         
@@ -512,7 +519,7 @@ class ARM_t1():
             
         arm.set_named_target(pose)
         arm.go(wait=True)
-        
+        print('open gripper')
         # Open gripper
         self.gripper_grip(1.0)
         
@@ -521,14 +528,14 @@ class ARM_t1():
         
         # # Create collision object at target item
         # collision_obj.sphere(x, y, z, CENTROID_RADIUS, "map", "centroid")
-        
+        print('move_base')
         base_trans = get_relative_coordinate("map", "base_link")
         base_x = x - base_trans.translation.x + self.hand_palm_base_link_offset
         base_y = y - base_trans.translation.y - self.hand_palm_centroid_offset
 
         move_base_vel(0.2,0,0,base_x,0,0)
         move_base_vel(0,0.2,0,0,base_y,0)    
-        
+        print('close')
         # Close gripper
         self.gripper_grip(0.05)
 
@@ -539,7 +546,7 @@ class ARM_t1():
         arm.go(wait=True)
         
         arm.set_named_target("transport_object")
-        return arm.go()
+        return arm.go(wait=True)
 
     def pick(self):
 
@@ -665,7 +672,9 @@ class ARM_t1():
                 navigate_to('Long_Table_A_Trays')
                 yolo.clear_list(True)
                 yolo.detect(True)
-                rospy.sleep(6)
+                while not yolo.finished_detection():
+                    print("===Waiting===")
+                    rospy.sleep(1.0)
                 tray = yolo.get_item_info('tray')
                 self.picked_food += 1
                 num_type = "even" if self.picked_food % 2 == 0 else "odd"
@@ -677,48 +686,60 @@ class ARM_t1():
                 navigate_to('Long_Table_A_Containers')
                 yolo.clear_list(True)
                 yolo.detect(True)
-                rospy.sleep(6)
+                while not yolo.finished_detection():
+                    print("===Waiting===")
+                    rospy.sleep(1.0)
                 b_container = yolo.get_item_info('b_container')
                 move_whole_body_pose_ik("map", b_container.x, b_container.y, *CONTAINER_B)
             elif self.target_item.Class in ORIENTATION_ITEMS:
                 navigate_to('Long_Table_A_Containers')
                 yolo.clear_list(True)
                 yolo.detect(True)
-                rospy.sleep(6)
+                while not yolo.finished_detection():
+                    print("===Waiting===")
+                    rospy.sleep(1.0)
                 a_container = yolo.get_item_info('a_container')
                 move_whole_body_pose_ik("map", a_container.x, a_container.y, *CONTAINER_A)        
             elif self.target_item.Class in TOOL_ITEMS:
                 navigate_to('Bins')
                 yolo.clear_list(True)
                 yolo.detect(True)
-                rospy.sleep(6)
+                while not yolo.finished_detection():
+                    print("===Waiting===")
+                    rospy.sleep(1.0)
                 black_bin = yolo.get_item_info('black_bin')
                 move_whole_body_pose_ik("map", black_bin.x, black_bin.y, *BIN_B)
             elif self.target_item.Class in SHAPE_ITEMS:
                 navigate_to('Bins')
                 yolo.clear_list(True)
                 yolo.detect(True)
-                rospy.sleep(6)
+                while not yolo.finished_detection():
+                    print("===Waiting===")
+                    rospy.sleep(1.0)
                 green_bin = yolo.get_item_info('green_bin')
                 move_whole_body_pose_ik("map", green_bin.x, green_bin.y, *BIN_A)
             elif self.target_item.Class in TASK_ITEMS:
                 navigate_to('Bins')
                 yolo.clear_list(True)
                 yolo.detect(True)
-                rospy.sleep(6)
+                while not yolo.finished_detection():
+                    print("===Waiting===")
+                    rospy.sleep(1.0)
                 green_bin = yolo.get_item_info('green_bin')
                 move_whole_body_pose_ik("map", green_bin.x, green_bin.y, *BIN_A)
             else:
                 navigate_to('Bins')
                 yolo.clear_list(True)
                 yolo.detect(True)
-                rospy.sleep(6)
+                while not yolo.finished_detection():
+                    print("===Waiting===")
+                    rospy.sleep(1.0)
                 black_bin = yolo.get_item_info('black_bin')
                 move_whole_body_pose_ik("map", black_bin.x, black_bin.y, *BIN_B)
             
             rospy.sleep(1.0)
-            move_hand(1.0)
             self.target_item = None
+            return move_hand(1.0)
             # collision_object.dettach("approx_grasped_item")
             # collision_object.scene.remove_world_object("approx_grasped_item")
 
