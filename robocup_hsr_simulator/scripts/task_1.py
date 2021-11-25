@@ -152,22 +152,18 @@ class ARM_t1():
         self.picked_food = 0
         self.target_item = None
         self.failed_item_list = []
+        self.hand_palm_base_link_offset = 0.078
+        self.hand_palm_centroid_offset = 0.04
         self.num_attempted_item = 0
 
         base.set_planner_id("PRM")
-<<<<<<< HEAD
         base.set_goal_joint_tolerance(0.005)
         arm.set_goal_joint_tolerance(0.005)
         self.upload_planning_scene()
         self.step = 0
         self.got_target = False
         # gripper.set_max_velocity_scaling_factor(0.6)
-=======
-        base.set_goal_joint_tolerance(0.001)
-        arm.set_goal_joint_tolerance(0.001)
-        whole_body.set_goal_joint_tolerance(0.001)
-        # gripper.set_max_velocity_scaling_factor(0.2)
->>>>>>> 910c0d9435b16933ab421012f4bd5e536a9e7ae0
+
         
     
     def upload_planning_scene(self):
@@ -241,12 +237,8 @@ class ARM_t1():
         #     print("Decide to open drawers...")
         #     self.grasp_tool = True
         #     self.grasp_shape_item = True
-<<<<<<< HEAD
+
         self.open_drawers()        
-=======
-        self.open_drawers()         
-            
->>>>>>> 910c0d9435b16933ab421012f4bd5e536a9e7ae0
 
     def open_drawers(self):
 
@@ -403,7 +395,7 @@ class ARM_t1():
             print("Navigating to search area...")
             num_type_sequence = "even" if self.num_attempted_item % 2 == 0 else "odd"
 
-<<<<<<< HEAD
+
             if num_type_sequence == "even":
                 state = navigate_to('Search_Area_Front_Left')
             elif num_type_sequence == "odd":
@@ -426,51 +418,8 @@ class ARM_t1():
             state = self.place()
             if state:
                 self.step == 0
-=======
-        if num_type_sequence == "even":
-            navigate_to('Search_Area_Front_Left')
-        elif num_type_sequence == "odd":
-            navigate_to('Search_Area_Front_Right')
-
-        self.num_attempted_item += 1
->>>>>>> 910c0d9435b16933ab421012f4bd5e536a9e7ae0
-
         
-<<<<<<< HEAD
         # self.pick()
-=======
-        collision_object.sphere(self.target_item.x, self.target_item.y, self.target_item.z, CENTROID_RADIUS, "map", "centroid")
-        rospy.sleep(1.0)
-
-        print("Clear octomap...")
-        clear_octomap()
-
-        if self.target_item.z < 0.25:  
-            end_effector_z_min = EEF_POINT_DOWN_FLOOR_Z_MIN
-        elif self.target_item.z > 0.38 and self.target_item.x > 0.35:
-            end_effector_z_min = EEF_POINT_DOWN_LONG_TABLE_B_Z_MIN
-            # Raise arm up far above table to avoid collision in next execution 
-            arm.set_named_target("neutral_z_max")
-            arm.go(wait=True)
-        elif self.target_item.z > 0.58:
-            end_effector_z_min = EEF_POINT_DOWN_TALL_TABLE_Z_MIN 
-            arm.set_named_target("neutral_z_max")
-            arm.go(wait=True)
-            
-        
-        self.pick(end_effector_z_min)
-        picked_up = object_grasping()
-        if not picked_up:
-            self.failed_item_list.append(self.target_item)
-            for i in range (len(self.failed_item_list)):
-                print("Failed item: " + self.failed_item_list[i].Class)
-        else:
-            move_arm_init()
-            move_arm_init()
-            
-            self.place() 
->>>>>>> 910c0d9435b16933ab421012f4bd5e536a9e7ae0
-
         # picked_up = object_grasping()
         # if not picked_up:
         #     self.failed_item_list.append(self.target_item)
@@ -589,16 +538,16 @@ class ARM_t1():
         self.move_base_link_pose_ik( "map", base_trans.translation.x + x_diff , base_trans.translation.y + y_diff, 90)
         
         arm_joints = arm.get_current_joint_values()
-        arm.set_joint_value_target("arm_lift_joint", arm_joints[0]-z_diff+self.hand_palm_centroid_offset)
+        print(arm_joints)
+        arm.set_joint_value_target("arm_lift_joint", arm_joints[1]-z_diff+self.hand_palm_centroid_offset)
         arm.go(wait=True)
         print('close')
         # Close gripper
-        self.gripper_grip(0.05)
-
+        move_hand(0.05)
         # Remove arm from the shelf
         #move_base_vel(-1.0,0,0)
         arm_joints = arm.get_current_joint_values()
-        arm.set_joint_value_target("arm_lift_joint", arm_joints[0]+0.04)
+        arm.set_joint_value_target("arm_lift_joint", arm_joints[1]+0.04)
         arm.go(wait=True)
         
         arm.set_named_target("transport_object")
@@ -607,7 +556,6 @@ class ARM_t1():
     def pick(self, end_effector_z_min):
 
         print("Go to pick-up item...")
-<<<<<<< HEAD
         print(self.target_item)
         clear_octomap()
 
@@ -702,34 +650,6 @@ class ARM_t1():
 
         # Allign the robot's base with localized items
         print("Sweep tall table...")
-=======
-        
-        if self.target_item.z < end_effector_z_min:
-            self.target_item.z = end_effector_z_min
-
-        # Allign the gripper above the localized items
-        move_whole_body_pose_ik("map", self.target_item.x, self.target_item.y, (self.target_item.z + SAFETY_PRE_GRASP_APPROACH_DIS), 0, 180, 90)
-        # Lock the orientation of gripper, and move down along z-axis to item's pose
-        eef_map_orientation_constraint(True, 0, 180, 90)
-        # move_end_effector_by_line([0, 0, 1], (- SAFETY_PRE_GRASP_APPROACH_DIS + 0.02))
-        arm_joint_values = arm.get_current_joint_values()
-        # arm_pose.position.z += (- SAFETY_PRE_GRASP_APPROACH_DIS + 0.02)
-        # arm.set_pose_target(arm_pose)
-        if arm_joint_values[0] > 0.22:
-            arm_joint_values[0] += (- SAFETY_PRE_GRASP_APPROACH_DIS + 0.025) # z -= 0.2
-            arm.set_joint_value_target(arm_joint_values)
-            clear_octomap()
-            rospy.sleep(1.0)
-            if arm.go(wait=True):
-                print("Succefully move arm downward...")
-            else:
-                print("failed to move lift joint downward..")
-        else:
-            clear_octomap()
-            rospy.sleep(1.0)
-            move_whole_body_pose_ik("map", self.target_item.x, self.target_item.y, (self.target_item.z + 0.025), 0, 180, 90)
-        # Close gripper
->>>>>>> 910c0d9435b16933ab421012f4bd5e536a9e7ae0
         rospy.sleep(1.0)
         if move_hand(0.0) == False:
             move_hand(0.0)
