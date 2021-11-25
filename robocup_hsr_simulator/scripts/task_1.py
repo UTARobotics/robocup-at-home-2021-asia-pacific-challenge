@@ -179,7 +179,7 @@ class ARM_t1():
             clear_octomap()
 
             # Slightly "open" the gripper
-            move_hand(0.30)
+            move_hand(0.32)
             # Allign the robot's base with knob of "drawer_bottom"
             move_base_pose_ik("map", DRAWER_BOTTOM_KNOB[0] - 0.078, (DRAWER_BOTTOM_KNOB[1] + SAFETY_PRE_GRASP_APPROACH_DIS), -90)
             # Allign the gripper with knob of "drawer_bottom" by FK
@@ -224,7 +224,7 @@ class ARM_t1():
             arm.go(wait=True)
             clear_octomap()
             
-            move_hand(0.30)
+            move_hand(0.32)
             move_base_pose_ik("map", DRAWER_TOP_KNOB[0] - 0.078, (DRAWER_TOP_KNOB[1] + SAFETY_PRE_GRASP_APPROACH_DIS), -90)
             
             clear_octomap()
@@ -257,16 +257,16 @@ class ARM_t1():
             move_base_vel(-0.06, 0, 0, -0.06, 0, 0)
             
             collision_object.box((0.49 - 0.33), (-0.53 + 0.27), (0.22 + 0.28), DRAWER_LENGTH, DRAWER_WIDTH, DRAWER_HEIGHT, "map", "drawer_top")
-            move_arm_init()
+            
             clear_octomap()
-
-            move_hand(0.30)
-            move_base_pose_ik("map", DRAWER_LEFT_KNOB[0] - 0.078, (DRAWER_LEFT_KNOB[1] + SAFETY_PRE_GRASP_APPROACH_DIS), -90)
             arm.set_named_target("drawer_bottom")
             arm.go(wait=True)
+
+            move_hand(0.32)
+            move_base_pose_ik("map", DRAWER_LEFT_KNOB[0] - 0.078, (DRAWER_LEFT_KNOB[1] + SAFETY_PRE_GRASP_APPROACH_DIS), -90)
             
             collision_object.box(0.49, -0.55, 0.22, DRAWER_LENGTH, DRAWER_WIDTH, DRAWER_HEIGHT, "map", "drawer_left")
-            # clear_octomap()
+            clear_octomap()
             # move_base_pose_ik("map", DRAWER_LEFT_KNOB[0] - 0.078, DRAWER_LEFT_KNOB[1], -90)
             base_variable_values = base.get_current_joint_values()
             base_variable_values[0] -= SAFETY_PRE_GRASP_APPROACH_DIS 
