@@ -446,6 +446,7 @@ class ARM_t1():
                 while not yolo.finished_detection():
                     print("===Waiting===")
                     rospy.sleep(1.0)
+                clear_octomap()
                 self.step += 1
         elif self.step == 3:
             print("got on yolo...")
