@@ -415,9 +415,9 @@ class ARM_t1():
                     self.step +=1
         elif self.step == 2:
             print("placing item...")
-            state = self.place()
-            if state:
-                self.step == 0
+            while not self.place():
+                rospy.sleep(1)
+            self.step == 0
         
         # self.pick()
         # picked_up = object_grasping()
@@ -742,6 +742,7 @@ class ARM_t1():
             
             rospy.sleep(1.0)
             self.target_item = None
+            yolo.clear_list(True)
             return move_hand(1.0)
             # collision_object.dettach("approx_grasped_item")
             # collision_object.scene.remove_world_object("approx_grasped_item")
