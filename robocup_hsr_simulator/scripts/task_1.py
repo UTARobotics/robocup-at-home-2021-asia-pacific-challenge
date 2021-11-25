@@ -23,7 +23,7 @@ def navigate_to(location):
         move_base_goal(0.08, 0.4, 90)
         move_head_tilt(-0.55)
     if location == 'Search_Area_Front_Right':
-        move_base_goal(1.0, 0.5, 90)
+        move_base_goal(1.0, 0.4, 90)
         move_head_tilt(-0.72)
     if location == 'Long_Table_A_Containers':
         move_base_goal(1.1148, 0.075, -90)
@@ -152,8 +152,8 @@ class ARM_t1():
         self.num_attempted_item = 0
 
         base.set_planner_id("PRM")
-        base.set_goal_joint_tolerance(0.001)
-        arm.set_goal_joint_tolerance(0.001)
+        base.set_goal_joint_tolerance(0.005)
+        arm.set_goal_joint_tolerance(0.005)
         self.upload_planning_scene()
         # gripper.set_max_velocity_scaling_factor(0.6)
         
@@ -171,6 +171,29 @@ class ARM_t1():
         collision_object.box(0.5, 1.6, 0.24, 2.6, 0.01, 0.02, "map", "task_1_boundary_5") # Search Area Table 
         print("Completed uploading planning scene...")
 
+    def move_base_link_pose_ik(self, ref_frame, x, y, yaw):
+
+        p = geometry_msgs.msg.Pose()
+
+        p = PoseStamped()
+
+        p.header.frame_id = ref_frame
+
+        p.pose.position.x = x 
+        p.pose.position.y = y
+
+
+        p.pose.orientation = quaternion_from_euler(0, 0, yaw)
+
+        base.set_pose_target(p)
+
+        for i in range(10):
+            print('iteration %d'%i)
+            success = base.go(wait=True)
+            if success:
+                 break
+
+        return success
 
     def check_entrance_floor(self):
         
@@ -379,15 +402,8 @@ class ARM_t1():
         print("Calculating manipulating cost for each detected items...")
         self.manipulation_cost()
         print("after cost")
-        
-        collision_object.sphere(self.target_item.x, self.target_item.y, self.target_item.z, CENTROID_RADIUS, "map", "centroid")
-        rospy.sleep(1.0)
-        
-        print("Clear octomap...")
-        clear_octomap()
-        move_hand(1.0)
 
-        self.pick_test()
+        self.grab(self.target_item.x, self.target_item.y, self.target_item.z, collision_object)
 
         self.place()
         
@@ -482,6 +498,43 @@ class ARM_t1():
         
         print("Target item to be grasped is " + self.target_item.Class + str(self.target_item.id))
 
+    def grab(self, x, y, z, collision_obj):
+            
+       # Go to predefined arm pose based on the target object's height
+        if self.target_item.z < 0.25:
+            pose = "sweep_floor"
+        elif self.target_item.z > 0.38 and self.target_item.x > 0.35:
+            pose = "sweep_long_table_b"
+        elif self.target_item.z > 0.58:
+            pose = "sweep_tall_table"
+            
+        arm.set_named_target(pose)
+        arm.go(wait=True)
+        
+        # Open gripper
+        self.gripper_grip(1.0)
+        
+        # IK Preparation       
+        clear_octomap()
+        
+        # Create collision object at target item
+        collision_obj.sphere(x, y, z, CENTROID_RADIUS, "map", "centroid")
+        
+        while not self.move_base_link_pose_ik("map", x+self.hand_palm_base_link_offset,y+self.hand_palm_centroid_offset, 90):
+            clear_octomap()
+        rospy.sleep(1)      
+        
+        # Close gripper
+        self.gripper_grip(0.05)
+        
+        # Remove arm from the shelf
+        #move_base_vel(-1.0,0,0)
+        arm_joints = arm.get_current_joint_values()
+        arm.set_joint_value_target("arm_lift_joint", arm_joints[0]+0.04)
+        arm.go(wait=True)
+        
+        arm.set_named_target("transport_object")
+        arm.go(wait=True)
 
     def pick(self):
 
@@ -711,7 +764,7 @@ if __name__ == "__main__":
                         check_entrance = False
                     else:
                         try:
-                            robot.search():
+                            robot.search()
                         except:
                             pass
             elif  step == 2:
