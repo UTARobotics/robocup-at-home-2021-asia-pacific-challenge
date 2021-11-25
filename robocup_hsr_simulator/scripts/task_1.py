@@ -219,13 +219,14 @@ class ARM_t1():
             move_base_vel(-0.06, 0, 0, -0.06, 0, 0)
             
             collision_object.box((0.49 - 0.33), (-0.53 + 0.27), 0.22, DRAWER_LENGTH, DRAWER_WIDTH, DRAWER_HEIGHT, "map", "drawer_bottom")
-            move_arm_init()
-            clear_octomap()
-
-            move_hand(0.30)
-            move_base_pose_ik("map", DRAWER_TOP_KNOB[0] - 0.078, (DRAWER_TOP_KNOB[1] + SAFETY_PRE_GRASP_APPROACH_DIS), -90)
+            
             arm.set_named_target("drawer_top")
             arm.go(wait=True)
+            clear_octomap()
+            
+            move_hand(0.30)
+            move_base_pose_ik("map", DRAWER_TOP_KNOB[0] - 0.078, (DRAWER_TOP_KNOB[1] + SAFETY_PRE_GRASP_APPROACH_DIS), -90)
+            
             clear_octomap()
             # move_base_pose_ik("map", DRAWER_TOP_KNOB[0] - 0.078, DRAWER_TOP_KNOB[1], -90)
             base_variable_values = base.get_current_joint_values()
