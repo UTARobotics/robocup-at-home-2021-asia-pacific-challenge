@@ -38,7 +38,7 @@ POSSIBILITY OF SUCH DAMAGE.
   <!-- Params for the octomap monitor -->
   
   <param name="octomap_frame" type="string" value="map" />
-  <param name="octomap_resolution" type="double" value="0.020" />
+  <param name="octomap_resolution" type="double" value="0.016" />
   <param name="max_range" type="double" value="2" />
 
   <!-- max/min height for occupancy map, should be in meters -->
