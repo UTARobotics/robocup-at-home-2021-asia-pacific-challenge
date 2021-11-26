@@ -587,8 +587,11 @@ class ARM_t1():
         z_diff = eef_trans.translation.z - z 
         self.move_base_link_pose_ik( "map", base_trans.translation.x + x_diff , base_trans.translation.y + y_diff, 90)
 
-        print('move arm')
-        move_end_effector_by_line([0, 0, 1], -z_diff)
+        print('move arm downward')
+        arm_joint_values = arm.get_current_joint_values()
+        arm_joint_values[0] = z
+        arm.set_joint_value_target(arm_joint_values)
+        arm.go(wait=True)
 
         print('close')
         # Close gripper
