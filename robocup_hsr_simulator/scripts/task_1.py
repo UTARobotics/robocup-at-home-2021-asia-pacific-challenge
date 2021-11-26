@@ -460,6 +460,7 @@ class ARM_t1():
             print("got on yolo...")
             plc = yolo.get_item_info(self.item)
             print('moving to place')
+            clear_octomap()
             state = move_whole_body_pose_ik("map", plc.x, plc.y, *PLACE_POSE)
             if state:
                 move_hand(1.0)
@@ -469,7 +470,7 @@ class ARM_t1():
                 move_base_vel(-0.10, 0, 0, -0.15, 0, 0)
                 rospy.sleep(1.0)
                 self.step = 0
-            if self.timer >= 3000:
+            if self.timer >= 300:
                 move_hand(1.0)
                 self.target_item = None
                 self.item = ''
