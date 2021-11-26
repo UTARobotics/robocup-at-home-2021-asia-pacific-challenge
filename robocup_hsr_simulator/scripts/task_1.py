@@ -1,3 +1,39 @@
+
+Skip to content
+Pull requests
+Issues
+Marketplace
+Explore
+@LeoYong95
+UTARobotics /
+robocup-at-home-2021-asia-pacific-challenge
+Private
+
+2
+0
+
+    0
+
+Code
+Issues
+Pull requests
+Actions
+Projects
+Security
+Insights
+
+    Settings
+
+robocup-at-home-2021-asia-pacific-challenge/robocup_hsr_simulator/scripts/task_1.py /
+@chungpuonn
+chungpuonn solve navigation error after placing item at deposit area, slightly t…
+Latest commit 71ca0af 23 minutes ago
+History
+3 contributors
+@LeoYong95
+@chungpuonn
+@koksyuen
+executable file 872 lines (730 sloc) 33 KB
 #! /usr/bin/env python
 # -*- encoding: UTF-8 -*
 from task_2 import *
@@ -12,47 +48,48 @@ from deepsparse_yolo_msgs.srv import SetDetectState, SetDetectStateResponse, Rem
 def navigate_to(location):
 
     # To scan any obstacle that is unable to be detected by laser sensor
+    move_head_tilt(-1)
 
     if location == 'Drawers':
-        move_head_tilt(-0.5)
         if move_base_goal(0.15, 0.5, -90):
-            return True
+            if move_head_tilt(-0.5):
+                return True
     if location == 'Search_Area_Front_Left':
-        move_head_tilt(-0.55)
         if move_base_goal(0.08, 0.4, 90):
-            return True
+            if move_head_tilt(-0.55):
+                return True
     if location == 'Search_Area_Front_Right':
-        move_head_tilt(-0.72)
         if move_base_goal(1.0, 0.4, 90):
-            return True
+            if move_head_tilt(-0.72):
+                return True
     if location == 'Long_Table_A_Containers':
-        move_head_tilt(-0.9)
         if move_base_goal(1.1148, 0.075, -90):
-            return True
+            if move_head_tilt(-0.9):
+                return True
     if location == 'Long_Table_A_Trays':
-        move_head_tilt(-0.9)
         if move_base_goal(1.7348, 0.075, -90):
-            return True
+            if move_head_tilt(-0.9):
+                return True
     if location == 'Bins':
-        move_head_tilt(-0.9)
         if move_base_goal(2.7048, 0.075, -90):
-            return True
+            if move_head_tilt(-0.9):
+                return True
     if location == 'Tall_Table':
-        move_head_tilt(-0.5)
         if move_base_goal(0.15, 1.20, 90):
-            return True
+            if move_head_tilt(-0.5):
+                return True
     if location == 'Long_Table_B':
-        move_head_tilt(-0.5)
         if move_base_goal(1.0, 0.75, 90):
-            return True
+            if move_head_tilt(-0.5):
+                return True
     if location == 'Shelf':
-        move_head_tilt(-0.3)
         if move_base_goal(2.28, 3.84, 95):
-            return True
+            if move_head_tilt(-0.3):
+                return True
     if location == 'Person':
-        move_head_tilt(0.3)
         if move_base_goal(1.12, 3.46, 180):
-            return True
+            if move_head_tilt(0.3):
+                return True
     else:
         return False
 
@@ -165,10 +202,10 @@ class ARM_t1():
         self.step = 0
         self.got_target = False
         self.item = ''
-        self.timer = 0
-        self.timeout = 1000
         # gripper.set_max_velocity_scaling_factor(0.6)
 
+        
+    
     def upload_planning_scene(self):
 
         print("Uploading planning scene...")
@@ -254,9 +291,9 @@ class ARM_t1():
             navigate_to('Drawers')
 
             # Upload collision objects of drawers in Moveit Rviz
-            collision_object.box((0.49 - 0.33), -0.53, 0.22, DRAWER_LENGTH, DRAWER_WIDTH, DRAWER_HEIGHT, "map", "drawer_bottom")
-            collision_object.box((0.49 - 0.33), -0.53, (0.22 + 0.28), DRAWER_LENGTH, DRAWER_WIDTH, DRAWER_HEIGHT, "map", "drawer_top")
-            collision_object.box(0.49, -0.53, 0.22, DRAWER_LENGTH, DRAWER_WIDTH, DRAWER_HEIGHT, "map", "drawer_left")
+            collision_object.box((0.49 - 0.33), -0.54, 0.22, DRAWER_LENGTH, DRAWER_WIDTH, DRAWER_HEIGHT, "map", "drawer_bottom")
+            collision_object.box((0.49 - 0.33), -0.54, (0.22 + 0.28), DRAWER_LENGTH, DRAWER_WIDTH, DRAWER_HEIGHT, "map", "drawer_top")
+            collision_object.box(0.49, -0.54, 0.22, DRAWER_LENGTH, DRAWER_WIDTH, DRAWER_HEIGHT, "map", "drawer_left")
             clear_octomap()
 
             # Slightly "open" the gripper
@@ -299,7 +336,7 @@ class ARM_t1():
             clear_octomap()
             move_base_vel(-0.06, 0, 0, -0.06, 0, 0)
             
-            collision_object.box((0.49 - 0.33), (-0.53 + 0.27), 0.22, DRAWER_LENGTH, DRAWER_WIDTH, DRAWER_HEIGHT, "map", "drawer_bottom")
+            collision_object.box((0.49 - 0.33), (-0.54 + 0.27), 0.22, DRAWER_LENGTH, DRAWER_WIDTH, DRAWER_HEIGHT, "map", "drawer_bottom")
             
             arm.set_named_target("drawer_top")
             arm.go()
@@ -337,7 +374,7 @@ class ARM_t1():
             clear_octomap()
             move_base_vel(-0.06, 0, 0, -0.06, 0, 0)
             
-            collision_object.box((0.49 - 0.33), (-0.53 + 0.27), (0.22 + 0.28), DRAWER_LENGTH, DRAWER_WIDTH, DRAWER_HEIGHT, "map", "drawer_top")
+            collision_object.box((0.49 - 0.33), (-0.54 + 0.27), (0.22 + 0.28), DRAWER_LENGTH, DRAWER_WIDTH, DRAWER_HEIGHT, "map", "drawer_top")
             
             clear_octomap()
             arm.set_named_target("drawer_bottom")
@@ -346,7 +383,7 @@ class ARM_t1():
             move_hand(0.32)
             move_base_pose_ik("map", DRAWER_LEFT_KNOB[0] - 0.078, (DRAWER_LEFT_KNOB[1] + SAFETY_PRE_GRASP_APPROACH_DIS), -90)
             
-            collision_object.box(0.49, -0.55, 0.22, DRAWER_LENGTH, DRAWER_WIDTH, DRAWER_HEIGHT, "map", "drawer_left")
+            collision_object.box(0.49, -0.56, 0.22, DRAWER_LENGTH, DRAWER_WIDTH, DRAWER_HEIGHT, "map", "drawer_left")
             clear_octomap()
             # move_base_pose_ik("map", DRAWER_LEFT_KNOB[0] - 0.078, DRAWER_LEFT_KNOB[1], -90)
             base_variable_values = base.get_current_joint_values()
@@ -376,7 +413,7 @@ class ARM_t1():
             clear_octomap()
             move_base_vel(-0.06, 0, 0, -0.06, 0, 0)
             
-            collision_object.box(0.49, (-0.53 + 0.25), 0.22, DRAWER_LENGTH, DRAWER_WIDTH, DRAWER_HEIGHT, "map", "drawer_left")
+            collision_object.box(0.49, (-0.54 + 0.25), 0.22, DRAWER_LENGTH, DRAWER_WIDTH, DRAWER_HEIGHT, "map", "drawer_left")
             move_base_vel(-0.05, 0, 0, -0.05, 0, 0)
             move_arm_init()
             clear_octomap()
@@ -397,9 +434,10 @@ class ARM_t1():
         # Fully "open" the gripper
         #move_hand(1.0)
         if self.step == 0:
-            move_arm_neutral()
+            move_arm_init()
             print("Navigating to search area...")
             num_type_sequence = "even" if self.num_attempted_item % 2 == 0 else "odd"
+
 
             if num_type_sequence == "even":
                 state = navigate_to('Search_Area_Front_Left')
@@ -407,33 +445,18 @@ class ARM_t1():
                 state = navigate_to('Search_Area_Front_Right')
             
             self.num_attempted_item += 1
-
             if state:
-                self.step +=1
-        elif self.step == 1:
-            yolo.clear_list(True)
-            yolo.detect(True)
-            while not yolo.finished_detection():
-                print("===Waiting===")
-                rospy.sleep(1.0)
-            self.step +=1
-        elif self.step == 2:
                 print("Calculating manipulating cost for each detected items...")
                 self.manipulation_cost()
                 print("after cost")
                 self.step +=1
-        elif self.step == 3:
-            self.timer+=1
+        elif self.step == 1:
             print("attempt grabbing...")
             if self.got_target:
                 state = self.grab(self.target_item.x, self.target_item.y, self.target_item.z)
                 if state:
                     self.step +=1
-            elif not self.got_target and self.timer == self.timeout:
-                yolo.clear_list(True)
-                self.timer = 0
-                self.step = 0                
-        elif self.step == 4:
+        elif self.step == 2:
             print("placing item...")
             place = ''
             if self.target_item.Class in FOOD:
@@ -465,30 +488,22 @@ class ARM_t1():
                 while not yolo.finished_detection():
                     print("===Waiting===")
                     rospy.sleep(1.0)
+                clear_octomap()
                 self.step += 1
-        elif self.step == 5:
-            self.timer += 1
+        elif self.step == 3:
             print("got on yolo...")
             plc = yolo.get_item_info(self.item)
             print('moving to place')
-            clear_octomap()
-            state = move_whole_body_pose_ik("map", plc.x, plc.y, *TRAY_A)
+            state = move_whole_body_pose_ik("map", plc.x, plc.y, *PLACE_POSE)
             if state:
                 move_hand(1.0)
                 self.target_item = None
                 self.item = ''
                 yolo.clear_list(True)
+                move_base_vel(-0.10, 0, 0, -0.15, 0, 0)
+                rospy.sleep(1.0)
                 self.step = 0
-                self.timer = 0
-            elif not state and self.timer == self.timeout:
-                move_hand(1.0)
-                self.target_item = None
-                self.item = ''
-                yolo.clear_list(True)
-                self.step = 0
-                self.timer = 0
 
-        
         # self.pick()
         # picked_up = object_grasping()
         # if not picked_up:
@@ -514,7 +529,12 @@ class ARM_t1():
         print("shortest robot item distance: ")
         print(str(shortest_robot_item_distance))
         self.got_target = False
-        
+        yolo.clear_list(True)
+        yolo.detect(True)
+
+        while not yolo.finished_detection():
+            print("===Waiting===")
+            rospy.sleep(1.0)
         print("Got the items")
         detected_item_list = yolo.detected_items()
 
@@ -585,11 +605,7 @@ class ARM_t1():
             pose = "grip_down_long_table_b"
         elif self.target_item.z > 0.58:
             pose = "grip_down_tall_table"
-        #open gripper
-        clear_octomap()   
-        print('open gripper') 
-        gripper.set_joint_value_target("hand_motor_joint", 1.0)   
-        gripper.go()
+           
         arm.set_named_target(pose)
         arm.go()
         print('open gripper')
@@ -603,12 +619,12 @@ class ARM_t1():
         print('move_base')
         eef_trans = get_relative_coordinate("map", "hand_palm_link")
         base_trans = get_relative_coordinate("map", "base_link")
-        clear_octomap()
+
         x_diff = x - eef_trans.translation.x 
         y_diff = y - eef_trans.translation.y - self.hand_palm_centroid_offset
-        z_diff = eef_trans.translation.z + EEF_POINT_DOWN_Z_OFFSET - z 
+        z_diff = eef_trans.translation.z - z - EEF_POINT_DOWN_Z_OFFSET 
         self.move_base_link_pose_ik( "map", base_trans.translation.x + x_diff , base_trans.translation.y + y_diff, 90)
-            
+
         print('move arm')
         move_end_effector_by_line([0, 0, 1], -z_diff)
 
@@ -618,9 +634,9 @@ class ARM_t1():
         # Remove arm from the shelf
         #move_base_vel(-1.0,0,0)
         # move_end_effector_by_line([0, 0, 1], z_diff)
-        clear_octomap()
-     
-        return move_arm_neutral()
+        
+        arm.set_named_target("go")
+        return arm.go()
 
     def pick(self, end_effector_z_min):
 
@@ -843,8 +859,8 @@ if __name__ == "__main__":
     # task 2
     t2 = Task_2()
     print("Starting...")
-    forteen_min = rospy.Duration(12*60) #change state earlier
-    five_min = rospy.Duration(8*60)
+    forteen_min = rospy.Duration(11.8*60) #change state earlier
+    five_min = rospy.Duration(7.2*60)
     start = rospy.Time.now()
     while not rospy.is_shutdown():
         try: 
@@ -890,3 +906,19 @@ if __name__ == "__main__":
         except:
             pass
         r.sleep()   
+
+    © 2021 GitHub, Inc.
+
+    Terms
+    Privacy
+    Security
+    Status
+    Docs
+    Contact GitHub
+    Pricing
+    API
+    Training
+    Blog
+    About
+
+Loading complete
