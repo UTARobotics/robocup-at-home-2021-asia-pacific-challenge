@@ -542,6 +542,7 @@ class ARM_t1():
             if robot_item_distance < shortest_robot_item_distance:
                 shortest_robot_item_distance = robot_item_distance
             print("next")
+            r.sleep()
         
         print("Item with shortest distance " + str(shortest_robot_item_distance) + " is " )
 
@@ -572,6 +573,7 @@ class ARM_t1():
                 self.got_target = True
                 print("target_item = ", self.target_item)
             print("next")
+            r.sleep()
         
         print("Target item to be grasped is " + self.target_item.Class + str(self.target_item.id))
 
