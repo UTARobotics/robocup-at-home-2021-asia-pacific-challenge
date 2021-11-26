@@ -16,7 +16,6 @@ import param
 from deepsparse_yolo_msgs.msg import BBox, BBoxes, Object, Objects
 #from deepsparse_utils import _YOLO_CLASSES
 import tf
-import tf2
 import tf2_ros
 import tf_conversions
 import geometry_msgs
@@ -37,7 +36,7 @@ class Depth(object):
         self.obj_buff = []
         self.objs = []
         #TF broadcaster and Listener
-        self.listener = tf2.BufferCore(rospy.Duration(10.0))
+        self.listener = tf2_ros.Buffer()
         self._br = tf2_ros.TransformBroadcaster()
         # Node cycle rate (in Hz).
         self.loop_rate = rospy.Rate(1)
