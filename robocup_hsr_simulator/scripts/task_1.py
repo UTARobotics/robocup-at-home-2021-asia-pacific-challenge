@@ -166,6 +166,7 @@ class ARM_t1():
         self.step = 0
         self.got_target = False
         self.item = ''
+        self.timer = 0
         # gripper.set_max_velocity_scaling_factor(0.6)
 
         
@@ -455,6 +456,7 @@ class ARM_t1():
                 clear_octomap()
                 self.step += 1
         elif self.step == 3:
+            self.timer += 1
             print("got on yolo...")
             plc = yolo.get_item_info(self.item)
             print('moving to place')
@@ -467,6 +469,15 @@ class ARM_t1():
                 move_base_vel(-0.10, 0, 0, -0.15, 0, 0)
                 rospy.sleep(1.0)
                 self.step = 0
+            if self.timer >= 3000:
+                move_hand(1.0)
+                self.target_item = None
+                self.item = ''
+                yolo.clear_list(True)
+                move_base_vel(-0.10, 0, 0, -0.15, 0, 0)
+                rospy.sleep(1.0)
+                self.step = 0
+
 
         # self.pick()
         # picked_up = object_grasping()
@@ -823,8 +834,8 @@ if __name__ == "__main__":
     # task 2
     t2 = Task_2()
     print("Starting...")
-    forteen_min = rospy.Duration(11.8*60) #change state earlier
-    five_min = rospy.Duration(7.2*60)
+    forteen_min = rospy.Duration(12*60) #change state earlier
+    five_min = rospy.Duration(8*60)
     start = rospy.Time.now()
     while not rospy.is_shutdown():
         try: 
