@@ -55,9 +55,9 @@ CENTROID_RADIUS = 0.02
 
 # Task 1: PLACE poses at "Deposit Area", (x, y, z, roll, pitch, yaw)
 
-DRAWER_BOTTOM_KNOB = [0.155, -0.263, 0.28, 90, 0, 0]
-DRAWER_TOP_KNOB = [0.155, -0.265, 0.54, 90, 0, 0]
-DRAWER_LEFT_KNOB = [0.52, -0.267, 0.275, 90, 0, 0]
+DRAWER_BOTTOM_KNOB = [0.155, -0.265, 0.28, 90, 0, 0]
+DRAWER_TOP_KNOB = [0.155, -0.267, 0.54, 90, 0, 0]
+DRAWER_LEFT_KNOB = [0.52, -0.269, 0.275, 90, 0, 0]
 
 DRAWER_TOP = [0.14, -0.20, 0.70, 180, 0, 90]
 DRAWER_LEFT = [0.52, -0.20, 0.43, 180, 0, 90]
