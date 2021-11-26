@@ -164,8 +164,6 @@ class ARM_t1():
         self.item = ''
         # gripper.set_max_velocity_scaling_factor(0.6)
 
-        
-    
     def upload_planning_scene(self):
 
         print("Uploading planning scene...")
@@ -403,17 +401,19 @@ class ARM_t1():
             self.num_attempted_item += 1
 
             if state:
+                self.step +=1
+        elif self.step == 1:
                 print("Calculating manipulating cost for each detected items...")
                 self.manipulation_cost()
                 print("after cost")
                 self.step +=1
-        elif self.step == 1:
+        elif self.step == 2:
             print("attempt grabbing...")
             if self.got_target:
                 state = self.grab(self.target_item.x, self.target_item.y, self.target_item.z)
                 if state:
                     self.step +=1
-        elif self.step == 2:
+        elif self.step == 3:
             print("placing item...")
             place = ''
             if self.target_item.Class in FOOD:
@@ -446,7 +446,7 @@ class ARM_t1():
                     print("===Waiting===")
                     rospy.sleep(1.0)
                 self.step += 1
-        elif self.step == 3:
+        elif self.step == 4:
             print("got on yolo...")
             plc = yolo.get_item_info(self.item)
             print('moving to place')
