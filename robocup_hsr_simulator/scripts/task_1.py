@@ -12,48 +12,47 @@ from deepsparse_yolo_msgs.srv import SetDetectState, SetDetectStateResponse, Rem
 def navigate_to(location):
 
     # To scan any obstacle that is unable to be detected by laser sensor
-    move_head_tilt(-1)
 
     if location == 'Drawers':
+        move_head_tilt(-0.5)
         if move_base_goal(0.15, 0.5, -90):
-            if move_head_tilt(-0.5):
-                return True
+            return True
     if location == 'Search_Area_Front_Left':
+        move_head_tilt(-0.55)
         if move_base_goal(0.08, 0.4, 90):
-            if move_head_tilt(-0.55):
-                return True
+            return True
     if location == 'Search_Area_Front_Right':
+        move_head_tilt(-0.72)
         if move_base_goal(1.0, 0.4, 90):
-            if move_head_tilt(-0.72):
-                return True
+            return True
     if location == 'Long_Table_A_Containers':
+        move_head_tilt(-0.9)
         if move_base_goal(1.1148, 0.075, -90):
-            if move_head_tilt(-0.9):
-                return True
+            return True
     if location == 'Long_Table_A_Trays':
+        move_head_tilt(-0.9)
         if move_base_goal(1.7348, 0.075, -90):
-            if move_head_tilt(-0.9):
-                return True
+            return True
     if location == 'Bins':
+        move_head_tilt(-0.9)
         if move_base_goal(2.7048, 0.075, -90):
-            if move_head_tilt(-0.9):
-                return True
+            return True
     if location == 'Tall_Table':
+        move_head_tilt(-0.5)
         if move_base_goal(0.15, 1.20, 90):
-            if move_head_tilt(-0.5):
-                return True
+            return True
     if location == 'Long_Table_B':
+        move_head_tilt(-0.5)
         if move_base_goal(1.0, 0.75, 90):
-            if move_head_tilt(-0.5):
-                return True
+            return True
     if location == 'Shelf':
+        move_head_tilt(-0.3)
         if move_base_goal(2.28, 3.84, 95):
-            if move_head_tilt(-0.3):
-                return True
+            return True
     if location == 'Person':
+        move_head_tilt(0.3)
         if move_base_goal(1.12, 3.46, 180):
-            if move_head_tilt(0.3):
-                return True
+            return True
     else:
         return False
 
@@ -392,10 +391,9 @@ class ARM_t1():
         # Fully "open" the gripper
         #move_hand(1.0)
         if self.step == 0:
-            move_arm_init()
+            move_arm_neutral()
             print("Navigating to search area...")
             num_type_sequence = "even" if self.num_attempted_item % 2 == 0 else "odd"
-
 
             if num_type_sequence == "even":
                 state = navigate_to('Search_Area_Front_Left')
@@ -403,6 +401,7 @@ class ARM_t1():
                 state = navigate_to('Search_Area_Front_Right')
             
             self.num_attempted_item += 1
+
             if state:
                 print("Calculating manipulating cost for each detected items...")
                 self.manipulation_cost()
@@ -446,13 +445,13 @@ class ARM_t1():
                 while not yolo.finished_detection():
                     print("===Waiting===")
                     rospy.sleep(1.0)
-                clear_octomap()
                 self.step += 1
         elif self.step == 3:
             print("got on yolo...")
             plc = yolo.get_item_info(self.item)
             print('moving to place')
-            state = move_whole_body_pose_ik("map", plc.x, plc.y, *CONTAINER_A)
+            clear_octomap()
+            state = move_whole_body_pose_ik("map", plc.x, plc.y, *TRAY_A)
             if state:
                 move_hand(1.0)
                 self.target_item = None
@@ -518,7 +517,6 @@ class ARM_t1():
             if robot_item_distance < shortest_robot_item_distance:
                 shortest_robot_item_distance = robot_item_distance
             print("next")
-            r.sleep()
         
         print("Item with shortest distance " + str(shortest_robot_item_distance) + " is " )
 
@@ -549,7 +547,6 @@ class ARM_t1():
                 self.got_target = True
                 print("target_item = ", self.target_item)
             print("next")
-            r.sleep()
         
         print("Target item to be grasped is " + self.target_item.Class + str(self.target_item.id))
 
@@ -561,12 +558,14 @@ class ARM_t1():
             pose = "grip_down_long_table_b"
         elif self.target_item.z > 0.58:
             pose = "grip_down_tall_table"
-           
+        #open gripper
+        clear_octomap()   
+        print('open gripper') 
+        gripper.set_joint_value_target("hand_motor_joint", 1.0)   
+        gripper.go()
         arm.set_named_target(pose)
         arm.go(wait=True)
-        print('open gripper')
-        # Open gripper
-        move_hand(1.0)
+        #move_hand(1.0)
     
         print('move_base')
         eef_trans = get_relative_coordinate("map", "hand_palm_link")
@@ -575,7 +574,8 @@ class ARM_t1():
         x_diff = x - eef_trans.translation.x 
         y_diff = y - eef_trans.translation.y
         z_diff = eef_trans.translation.z - z + self.hand_palm_centroid_offset
-        self.move_base_link_pose_ik( "map", base_trans.translation.x + x_diff , base_trans.translation.y + y_diff, 90)
+        while self.move_base_link_pose_ik( "map", base_trans.translation.x + x_diff , base_trans.translation.y + y_diff, 90):
+            clear_octomap()
 
         print('move arm')
         move_end_effector_by_line([0, 0, 1], -z_diff)
@@ -586,9 +586,9 @@ class ARM_t1():
         # Remove arm from the shelf
         #move_base_vel(-1.0,0,0)
         # move_end_effector_by_line([0, 0, 1], z_diff)
-        
-        arm.set_named_target("go")
-        return arm.go(wait=True)
+        clear_octomap()
+     
+        return move_arm_neutral()
 
     def pick(self, end_effector_z_min):
 
