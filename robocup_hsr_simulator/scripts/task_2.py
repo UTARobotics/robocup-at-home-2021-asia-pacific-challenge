@@ -428,8 +428,7 @@ if __name__ == '__main__':
     rospy.init_node('go_n_get_it', anonymous=True)
     t2 = Task_2()
     t2.task_2()
-
-    
+   
     #print('keyword heard: ', command)
     #print('DONE')
     #rospy.spin()
