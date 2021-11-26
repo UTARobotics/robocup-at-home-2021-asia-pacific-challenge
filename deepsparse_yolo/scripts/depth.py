@@ -36,7 +36,8 @@ class Depth(object):
         self.obj_buff = []
         self.objs = []
         #TF broadcaster and Listener
-        self.listener = tf2_ros.Buffer()
+        self.buffer = tf2_ros.Buffer()
+        self.listener = tf2_ros.TransformListener(self.buffer)
         self._br = tf2_ros.TransformBroadcaster()
         # Node cycle rate (in Hz).
         self.loop_rate = rospy.Rate(1)
@@ -67,13 +68,13 @@ class Depth(object):
     #Convert the referance frame of a tf
     def convert_TF(self,parent_frame,child_frame):
         trans = np.empty(3)
-        if self.listener.canTransform(parent_frame,child_frame,rospy.Time(0)):
+        if self.buffer.can_transform(parent_frame,child_frame,rospy.Time(0)):
             while not rospy.is_shutdown():
                 try:
-                    (trans, rot) = self.listener.lookupTransform(parent_frame,child_frame,rospy.Time(0))
+                    (trans, rot) = self.buffer.lookup_transform(parent_frame,child_frame,rospy.Time(0))
                     (roll, pitch, yaw) = euler_from_quaternion(rot)
                     break
-                except (tf.LookupException,tf.ConnectivityException, tf.ExtrapolationException) as e :
+                except (tf2_ros.LookupException, tf2_ros.ConnectivityException, tf2_ros.ExtrapolationException) as e :
                     rospy.logerr(e)
                     trans[:] = np.NaN
                     pass  
