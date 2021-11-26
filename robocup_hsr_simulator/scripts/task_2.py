@@ -13,8 +13,6 @@ import tf
 import tf2_ros
 import time
 
-# import matplotlib.pyplot as plt
-
 from utils_v2 import *
 from param import *
 
