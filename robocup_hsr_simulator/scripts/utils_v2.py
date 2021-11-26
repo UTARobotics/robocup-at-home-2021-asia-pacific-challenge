@@ -326,7 +326,7 @@ def move_whole_body_pose_ik(ref_frame, x, y, z, roll, pitch, yaw):
 
     # plan1 = whole_body.plan()
     
-    for i in range(15):
+    for i in range(6):
 	    print('iteration %d'%i)
 	    success = whole_body.go(wait=True)
 	    if success:
