@@ -72,7 +72,8 @@ class Depth(object):
             while not rospy.is_shutdown():
                 try:
                     trans_stmp = self.buffer.lookup_transform(parent_frame,child_frame,rospy.Time(0))
-                    (trans, rot) = trans_stmp.transform
+                    trans = [trans_stmp.transform.translation.x, trans_stmp.transform.translation.y, trans_stmp.transform.translation.z ]
+                    rot = [trans_stmp.transform.rotation.x, trans_stmp.transform.rotation.y, trans_stmp.transform.rotation.z, trans_stmp.transform.rotation.w]
                     (roll, pitch, yaw) = euler_from_quaternion(rot)
                     break
                 except (tf2_ros.LookupException, tf2_ros.ConnectivityException, tf2_ros.ExtrapolationException) as e :
