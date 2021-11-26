@@ -11,6 +11,7 @@ from deepsparse_yolo_msgs.msg import Object, Objects
 from deepsparse_yolo_msgs.srv import SetDetectState, SetDetectStateResponse, RemoveObject, RemoveObjectResponse, ClearObjects, ClearObjectsResponse
 
 def navigate_to(location):
+    
 
     # To scan any obstacle that is unable to be detected by laser sensor
     move_head_tilt(-1)
