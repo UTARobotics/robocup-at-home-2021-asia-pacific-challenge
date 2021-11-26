@@ -76,7 +76,7 @@ class Depth(object):
             except (tf.LookupException,tf.ConnectivityException, tf.ExtrapolationException) as e :
                 rospy.logerr(e)
                 trans[:] = np.NaN
-                break
+                pass
         return {'x':trans[0],'y':trans[1],'z':trans[2],'roll':0,'pitch':0,'yaw':yaw}  
 
     # Callback function object bboxes     
