@@ -570,13 +570,12 @@ class ARM_t1():
         print('move_base')
         eef_trans = get_relative_coordinate("map", "hand_palm_link")
         base_trans = get_relative_coordinate("map", "base_link")
-
+        clear_octomap()
         x_diff = x - eef_trans.translation.x 
         y_diff = y - eef_trans.translation.y
         z_diff = eef_trans.translation.z - z + self.hand_palm_centroid_offset
-        while self.move_base_link_pose_ik( "map", base_trans.translation.x + x_diff , base_trans.translation.y + y_diff, 90):
-            clear_octomap()
-
+        self.move_base_link_pose_ik( "map", base_trans.translation.x + x_diff , base_trans.translation.y + y_diff, 90)
+            
         print('move arm')
         move_end_effector_by_line([0, 0, 1], -z_diff)
 
