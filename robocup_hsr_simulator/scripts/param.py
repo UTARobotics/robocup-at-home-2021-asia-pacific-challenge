@@ -6,6 +6,7 @@ FOOD = ["master_chef_can", "cracker_box", "sugar_box", "tomato_soup_can", "musta
 "tuna_fish_can", "pudding_box", "gelatin_box", "potted_meat_can", "banana", "strawberry", 
 "apple", "lemon", "peach", "pear", "orange", "plum"]
 
+
 KITCHEN_ITEMS = ["pitcher_base", "bleach_cleanser", "windex_bottle", "bowl", "mug", 
 "sponge", "skillet", "skillet_lid", "plate"]
 
