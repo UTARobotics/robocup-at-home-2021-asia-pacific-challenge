@@ -239,12 +239,12 @@ class ARM():
             arm.set_joint_value_target("arm_lift_joint", 0.4)
         arm.go(wait=True)
         
-        #while not self.move_base_link_pose_ik("map", x+X_OFFSET, 3.7, 90):
-        #   clear_octomap()
+        while not self.move_base_link_pose_ik("map", x+X_OFFSET, 3.7, 90):
+           clear_octomap()
         #rospy.sleep(1)
         
-        #arm.set_named_target("transport_object")
-        #arm.go(wait=False)
+        arm.set_named_target("transport_object")
+        arm.go(wait=False)
 
 class Task_2(object):
 
@@ -405,9 +405,9 @@ class Task_2(object):
         
         # ------------Object Grasping -----------------
         self.grip_food(self.command)
-        self.move_base_vel(-1.0,0,0)
-        arm.set_named_target("transport_object")
-        arm.go(wait=False)
+        #self.move_base_vel(-1.0,0,0)
+        #arm.set_named_target("transport_object")
+        #arm.go(wait=False)
         #----------------------------------------------
         
         #-------------Approach person------------------
