@@ -157,7 +157,7 @@ class ARM_t1():
         self.num_attempted_item = 0
 
         base.set_planner_id("PRM")
-        base.set_goal_joint_tolerance(0.005)
+        base.set_goal_joint_tolerance(0.01)
         arm.set_goal_joint_tolerance(0.005)
         arm.allow_replanning(True)
         base.allow_replanning(True)
@@ -183,6 +183,7 @@ class ARM_t1():
         collision_object.box(0.5, 1.6, 0.24, 2.6, 0.01, 0.02, "map", "task_1_boundary_5") # Search Area Table 
         print("Completed uploading planning scene...")
 
+        
     def move_base_link_pose_ik(self, ref_frame, x, y, yaw):
 
         p = geometry_msgs.msg.Pose()
@@ -207,6 +208,7 @@ class ARM_t1():
 
         return success
 
+    
     def check_entrance_floor(self):
         
         # print("Checking entrance floor...")
@@ -244,6 +246,7 @@ class ARM_t1():
 
         self.open_drawers()        
 
+        
     def open_drawers(self):
 
         print("Navigating to drawers...")
@@ -570,6 +573,10 @@ class ARM_t1():
         print('open gripper')
         # Open gripper
         move_hand(1.0)
+        
+        print("Head up, Do not consider octomap")
+        move_head_tilt(0.0)
+        clear_octomap()
     
         print('move_base')
         eef_trans = get_relative_coordinate("map", "hand_palm_link")
