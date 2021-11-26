@@ -584,15 +584,11 @@ class ARM_t1():
 
         x_diff = x - eef_trans.translation.x 
         y_diff = y - eef_trans.translation.y - self.hand_palm_centroid_offset
-        z_diff = eef_trans.translation.z - z 
+        z_diff = eef_trans.translation.z + EEF_POINT_DOWN_Z_OFFSET - z 
         self.move_base_link_pose_ik( "map", base_trans.translation.x + x_diff , base_trans.translation.y + y_diff, 90)
-#         move_base_vel(0.1, 0.1, 0, x_diff, y_diff, 0)
 
-        print('move arm downward')
-        arm_joint_values = arm.get_current_joint_values()
-        arm_joint_values[0] = z
-        arm.set_joint_value_target(arm_joint_values)
-        arm.go(wait=True)
+        print('move arm')
+        move_end_effector_by_line([0, 0, 1], -z_diff)
 
         print('close')
         # Close gripper
@@ -825,8 +821,8 @@ if __name__ == "__main__":
     # task 2
     t2 = Task_2()
     print("Starting...")
-    forteen_min = rospy.Duration(11.5*60) #change state earlier
-    five_min = rospy.Duration(8.5*60)
+    forteen_min = rospy.Duration(12*60) #change state earlier
+    five_min = rospy.Duration(8*60)
     start = rospy.Time.now()
     while not rospy.is_shutdown():
         try: 
