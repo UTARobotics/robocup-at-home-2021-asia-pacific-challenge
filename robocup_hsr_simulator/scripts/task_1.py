@@ -584,7 +584,7 @@ class ARM_t1():
 
         x_diff = x - eef_trans.translation.x 
         y_diff = y - eef_trans.translation.y - self.hand_palm_centroid_offset
-        z_diff = eef_trans.translation.z + EEF_POINT_DOWN_Z_OFFSET - z 
+        z_diff = eef_trans.translation.z - z - EEF_POINT_DOWN_Z_OFFSET 
         self.move_base_link_pose_ik( "map", base_trans.translation.x + x_diff , base_trans.translation.y + y_diff, 90)
 
         print('move arm')
