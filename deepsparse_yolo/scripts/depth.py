@@ -16,6 +16,7 @@ import param
 from deepsparse_yolo_msgs.msg import BBox, BBoxes, Object, Objects
 #from deepsparse_utils import _YOLO_CLASSES
 import tf
+import tf2
 import tf2_ros
 import tf_conversions
 import geometry_msgs
@@ -36,7 +37,7 @@ class Depth(object):
         self.obj_buff = []
         self.objs = []
         #TF broadcaster and Listener
-        self.listener = tf.TransformListener()
+        self.listener = tf2.BufferCore(rospy.Duration(10.0))
         self._br = tf2_ros.TransformBroadcaster()
         # Node cycle rate (in Hz).
         self.loop_rate = rospy.Rate(1)
@@ -66,18 +67,20 @@ class Depth(object):
 
     #Convert the referance frame of a tf
     def convert_TF(self,parent_frame,child_frame):
-        self.listener.waitForTransform(parent_frame, child_frame, rospy.Time(), rospy.Duration(4.0))
         trans = np.empty(3)
-        while not rospy.is_shutdown():
-            try:
-                (trans, rot) = self.listener.lookupTransform(parent_frame,child_frame,rospy.Time(0))
-                (roll, pitch, yaw) = euler_from_quaternion(rot)
-                break
-            except (tf.LookupException,tf.ConnectivityException, tf.ExtrapolationException) as e :
-                rospy.logerr(e)
-                trans[:] = np.NaN
-                pass
-        return {'x':trans[0],'y':trans[1],'z':trans[2],'roll':0,'pitch':0,'yaw':yaw}  
+        if self.listener.canTransform(parent_frame,child_frame,rospy.Time(0)):
+            while not rospy.is_shutdown():
+                try:
+                    (trans, rot) = self.listener.lookupTransform(parent_frame,child_frame,rospy.Time(0))
+                    (roll, pitch, yaw) = euler_from_quaternion(rot)
+                    break
+                except (tf.LookupException,tf.ConnectivityException, tf.ExtrapolationException) as e :
+                    rospy.logerr(e)
+                    trans[:] = np.NaN
+                    pass  
+        else:
+            trans[:] = np.NaN
+        return {'x':trans[0],'y':trans[1],'z':trans[2],'roll':0,'pitch':0,'yaw':yaw}
 
     # Callback function object bboxes     
     def object_callback(self, bboxes):
@@ -174,7 +177,7 @@ class Depth(object):
                 # self.record_object_tf()
             if len(self.obj_buff) > 0 and self.record:
                 # rospy.loginfo("Recording ...")
-                #self.loop_rate.sleep()
+                self.loop_rate.sleep()
                 self.record_object_tf()
             if self.recorded and not self.record:        
                 msg = Objects()
