@@ -1,39 +1,3 @@
-
-Skip to content
-Pull requests
-Issues
-Marketplace
-Explore
-@LeoYong95
-UTARobotics /
-robocup-at-home-2021-asia-pacific-challenge
-Private
-
-2
-0
-
-    0
-
-Code
-Issues
-Pull requests
-Actions
-Projects
-Security
-Insights
-
-    Settings
-
-robocup-at-home-2021-asia-pacific-challenge/robocup_hsr_simulator/scripts/task_1.py /
-@chungpuonn
-chungpuonn solve navigation error after placing item at deposit area, slightly t…
-Latest commit 71ca0af 23 minutes ago
-History
-3 contributors
-@LeoYong95
-@chungpuonn
-@koksyuen
-executable file 872 lines (730 sloc) 33 KB
 #! /usr/bin/env python
 # -*- encoding: UTF-8 -*
 from task_2 import *
@@ -858,8 +822,8 @@ if __name__ == "__main__":
     # task 2
     t2 = Task_2()
     print("Starting...")
-    forteen_min = rospy.Duration(11.8*60) #change state earlier
-    five_min = rospy.Duration(7.2*60)
+    forteen_min = rospy.Duration(11*60) #change state earlier
+    five_min = rospy.Duration(8*60)
     start = rospy.Time.now()
     while not rospy.is_shutdown():
         try: 
@@ -905,19 +869,3 @@ if __name__ == "__main__":
         except:
             pass
         r.sleep()   
-
-    © 2021 GitHub, Inc.
-
-    Terms
-    Privacy
-    Security
-    Status
-    Docs
-    Contact GitHub
-    Pricing
-    API
-    Training
-    Blog
-    About
-
-Loading complete
