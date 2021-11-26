@@ -255,9 +255,9 @@ class ARM_t1():
             navigate_to('Drawers')
 
             # Upload collision objects of drawers in Moveit Rviz
-            collision_object.box((0.49 - 0.33), -0.53, 0.22, DRAWER_LENGTH, DRAWER_WIDTH, DRAWER_HEIGHT, "map", "drawer_bottom")
-            collision_object.box((0.49 - 0.33), -0.53, (0.22 + 0.28), DRAWER_LENGTH, DRAWER_WIDTH, DRAWER_HEIGHT, "map", "drawer_top")
-            collision_object.box(0.49, -0.53, 0.22, DRAWER_LENGTH, DRAWER_WIDTH, DRAWER_HEIGHT, "map", "drawer_left")
+            collision_object.box((0.49 - 0.33), -0.54, 0.22, DRAWER_LENGTH, DRAWER_WIDTH, DRAWER_HEIGHT, "map", "drawer_bottom")
+            collision_object.box((0.49 - 0.33), -0.54, (0.22 + 0.28), DRAWER_LENGTH, DRAWER_WIDTH, DRAWER_HEIGHT, "map", "drawer_top")
+            collision_object.box(0.49, -0.54, 0.22, DRAWER_LENGTH, DRAWER_WIDTH, DRAWER_HEIGHT, "map", "drawer_left")
             clear_octomap()
 
             # Slightly "open" the gripper
@@ -300,7 +300,7 @@ class ARM_t1():
             clear_octomap()
             move_base_vel(-0.06, 0, 0, -0.06, 0, 0)
             
-            collision_object.box((0.49 - 0.33), (-0.53 + 0.27), 0.22, DRAWER_LENGTH, DRAWER_WIDTH, DRAWER_HEIGHT, "map", "drawer_bottom")
+            collision_object.box((0.49 - 0.33), (-0.54 + 0.27), 0.22, DRAWER_LENGTH, DRAWER_WIDTH, DRAWER_HEIGHT, "map", "drawer_bottom")
             
             arm.set_named_target("drawer_top")
             arm.go()
@@ -338,7 +338,7 @@ class ARM_t1():
             clear_octomap()
             move_base_vel(-0.06, 0, 0, -0.06, 0, 0)
             
-            collision_object.box((0.49 - 0.33), (-0.53 + 0.27), (0.22 + 0.28), DRAWER_LENGTH, DRAWER_WIDTH, DRAWER_HEIGHT, "map", "drawer_top")
+            collision_object.box((0.49 - 0.33), (-0.54 + 0.27), (0.22 + 0.28), DRAWER_LENGTH, DRAWER_WIDTH, DRAWER_HEIGHT, "map", "drawer_top")
             
             clear_octomap()
             arm.set_named_target("drawer_bottom")
@@ -347,7 +347,7 @@ class ARM_t1():
             move_hand(0.32)
             move_base_pose_ik("map", DRAWER_LEFT_KNOB[0] - 0.078, (DRAWER_LEFT_KNOB[1] + SAFETY_PRE_GRASP_APPROACH_DIS), -90)
             
-            collision_object.box(0.49, -0.55, 0.22, DRAWER_LENGTH, DRAWER_WIDTH, DRAWER_HEIGHT, "map", "drawer_left")
+            collision_object.box(0.49, -0.56, 0.22, DRAWER_LENGTH, DRAWER_WIDTH, DRAWER_HEIGHT, "map", "drawer_left")
             clear_octomap()
             # move_base_pose_ik("map", DRAWER_LEFT_KNOB[0] - 0.078, DRAWER_LEFT_KNOB[1], -90)
             base_variable_values = base.get_current_joint_values()
@@ -377,7 +377,7 @@ class ARM_t1():
             clear_octomap()
             move_base_vel(-0.06, 0, 0, -0.06, 0, 0)
             
-            collision_object.box(0.49, (-0.53 + 0.25), 0.22, DRAWER_LENGTH, DRAWER_WIDTH, DRAWER_HEIGHT, "map", "drawer_left")
+            collision_object.box(0.49, (-0.54 + 0.25), 0.22, DRAWER_LENGTH, DRAWER_WIDTH, DRAWER_HEIGHT, "map", "drawer_left")
             move_base_vel(-0.05, 0, 0, -0.05, 0, 0)
             move_arm_init()
             clear_octomap()
@@ -464,6 +464,8 @@ class ARM_t1():
                 self.target_item = None
                 self.item = ''
                 yolo.clear_list(True)
+                move_base_vel(-0.10, 0, 0, -0.15, 0, 0)
+                rospy.sleep(1.0)
                 self.step = 0
 
         # self.pick()
@@ -821,8 +823,8 @@ if __name__ == "__main__":
     # task 2
     t2 = Task_2()
     print("Starting...")
-    forteen_min = rospy.Duration(12*60) #change state earlier
-    five_min = rospy.Duration(8*60)
+    forteen_min = rospy.Duration(11.8*60) #change state earlier
+    five_min = rospy.Duration(7.2*60)
     start = rospy.Time.now()
     while not rospy.is_shutdown():
         try: 
