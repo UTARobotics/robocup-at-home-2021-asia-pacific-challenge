@@ -2,8 +2,6 @@
 # -*- encoding: UTF-8 -*
 from task_2 import *
 # Pick & Place by using IK of whole body
-
-
 import math 
 from utils_v2 import *
 from param import *
