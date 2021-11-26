@@ -494,15 +494,14 @@ class ARM_t1():
             print("got on yolo...")
             plc = yolo.get_item_info(self.item)
             print('moving to place')
-            state = move_whole_body_pose_ik("map", plc.x, plc.y, *PLACE_POSE)
-            if state:
-                move_hand(1.0)
-                self.target_item = None
-                self.item = ''
-                yolo.clear_list(True)
-                move_base_vel(-0.10, 0, 0, -0.15, 0, 0)
-                rospy.sleep(1.0)
-                self.step = 0
+            move_whole_body_pose_ik("map", plc.x, plc.y, *PLACE_POSE)
+            move_hand(1.0)
+            self.target_item = None
+            self.item = ''
+            yolo.clear_list(True)
+            move_base_vel(-0.10, 0, 0, -0.15, 0, 0)
+            rospy.sleep(1.0)
+            self.step = 0
 
         # self.pick()
         # picked_up = object_grasping()
