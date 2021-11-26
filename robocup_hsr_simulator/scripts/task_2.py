@@ -173,13 +173,13 @@ class ARM():
             success = base.go(wait=True)
             if success:
                  break
-
         return success
     
-    def gripper_grip(self, magnitude):
+    def gripper_grip(self, magnitude, grip_wait=True):
         for i in range(10):
             print('gripper iteration %d'%i)
-            success = move_hand(magnitude)
+            gripper.set_joint_value_target("hand_motor_joint", magnitude)
+            success = gripper.go(wait=grip_wait)
             if success:
                  return success
                         
@@ -204,12 +204,12 @@ class ARM():
         else:
             shelf_level = "shelf_level1"
             
+        # Open gripper
+        self.gripper_grip(1.0, grip_wait = False)
+            
         arm.set_named_target(shelf_level)
         arm.go(wait=True)
-        
-        # Open gripper
-        self.gripper_grip(1.0)
-        
+               
         # IK Preparation       
         clear_octomap()
         
@@ -223,10 +223,10 @@ class ARM():
         # Align Y-AXIS
         while not self.move_base_link_pose_ik("map", x+X_OFFSET, y - Y_OFFSET[shelf_level], 90):
             clear_octomap()
-        rospy.sleep(3)      
+        #rospy.sleep(3)      
         
         # Close gripper
-        self.gripper_grip(0.05)
+        self.gripper_grip(0.05, grip_wait=True)
         
         # Remove arm from the shelf
         #move_base_vel(-1.0,0,0)
@@ -240,10 +240,10 @@ class ARM():
         
         while not self.move_base_link_pose_ik("map", x+X_OFFSET, 3.7, 90):
             clear_octomap()
-        rospy.sleep(1)
+        #rospy.sleep(1)
         
         arm.set_named_target("transport_object")
-        arm.go(wait=True)
+        arm.go(wait=False)
 
 class Task_2(object):
 
@@ -277,7 +277,7 @@ class Task_2(object):
         # Wait for YOLO finished detection
         while not self.yolo.finished_detection():
             print("===Waiting===")
-            rospy.sleep(1.0)
+            rospy.sleep(0.5)
 
         
         if self.yolo.easy_item_available():        
@@ -288,7 +288,7 @@ class Task_2(object):
     def give_food(self):
         arm.set_named_target("shelf_level3")
         arm.go(wait=True)
-        rospy.sleep(1)
+        #rospy.sleep(1)
         move_hand(1.0)
   
     def callback(self,data):
