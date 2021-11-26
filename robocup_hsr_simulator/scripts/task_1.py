@@ -161,7 +161,7 @@ class ARM_t1():
         arm.set_goal_joint_tolerance(0.005)
         arm.allow_replanning(True)
         base.allow_replanning(True)
-        whole_body.allow_replanning(True)
+#         whole_body.allow_replanning(True)
         self.upload_planning_scene()
         self.step = 0
         self.got_target = False
