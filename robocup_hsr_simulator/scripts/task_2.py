@@ -233,11 +233,11 @@ class ARM():
         #move_base_vel(-1.0,0,0)
         #arm_joints = arm.get_current_joint_values()
         #arm.set_joint_value_target("arm_lift_joint", arm_joints[0]+0.04)
-        if shelf_level == "shelf_level2":
-            arm.set_joint_value_target("arm_lift_joint", 0.69)
-        elif shelf_level == "shelf_level1":
-            arm.set_joint_value_target("arm_lift_joint", 0.4)
-        arm.go(wait=False)
+#         if shelf_level == "shelf_level2":
+#             arm.set_joint_value_target("arm_lift_joint", 0.69)
+#         elif shelf_level == "shelf_level1":
+#             arm.set_joint_value_target("arm_lift_joint", 0.4)
+#         arm.go(wait=False)
         
         #while not self.move_base_link_pose_ik("map", x+X_OFFSET, 3.7, 90):
            #clear_octomap()
@@ -405,7 +405,7 @@ class Task_2(object):
         
         # ------------Object Grasping -----------------
         self.grip_food(self.command)
-        move_base_vel(-1.0, 0, 0, -1.5, 0, 0)
+        move_base_vel(-0.8, 0, 0, -1.6, 0, 0)
         arm.set_named_target("transport_object")
         arm.go(wait=False)
         #----------------------------------------------
