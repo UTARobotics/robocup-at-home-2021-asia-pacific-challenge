@@ -583,8 +583,8 @@ class ARM_t1():
         base_trans = get_relative_coordinate("map", "base_link")
 
         x_diff = x - eef_trans.translation.x 
-        y_diff = y - eef_trans.translation.y
-        z_diff = eef_trans.translation.z - z + self.hand_palm_centroid_offset
+        y_diff = y - eef_trans.translation.y - self.hand_palm_centroid_offset
+        z_diff = eef_trans.translation.z - z 
         self.move_base_link_pose_ik( "map", base_trans.translation.x + x_diff , base_trans.translation.y + y_diff, 90)
 
         print('move arm')
