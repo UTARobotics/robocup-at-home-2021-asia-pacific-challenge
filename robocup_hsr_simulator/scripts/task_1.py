@@ -163,7 +163,7 @@ class ARM_t1():
         self.got_target = False
         self.item = ''
         self.timer = 0
-        self.timeout = 600
+        self.timeout = 1000
         # gripper.set_max_velocity_scaling_factor(0.6)
 
     def upload_planning_scene(self):
