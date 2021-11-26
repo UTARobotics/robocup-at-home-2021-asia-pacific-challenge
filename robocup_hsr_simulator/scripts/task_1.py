@@ -159,6 +159,9 @@ class ARM_t1():
         base.set_planner_id("PRM")
         base.set_goal_joint_tolerance(0.005)
         arm.set_goal_joint_tolerance(0.005)
+        arm.allow_replanning(True)
+        base.allow_replanning(True)
+        whole_body.allow_replanning(True)
         self.upload_planning_scene()
         self.step = 0
         self.got_target = False
@@ -297,7 +300,7 @@ class ARM_t1():
             collision_object.box((0.49 - 0.33), (-0.53 + 0.27), 0.22, DRAWER_LENGTH, DRAWER_WIDTH, DRAWER_HEIGHT, "map", "drawer_bottom")
             
             arm.set_named_target("drawer_top")
-            arm.go(wait=True)
+            arm.go()
             clear_octomap()
             
             move_hand(0.32)
@@ -336,7 +339,7 @@ class ARM_t1():
             
             clear_octomap()
             arm.set_named_target("drawer_bottom")
-            arm.go(wait=True)
+            arm.go()
 
             move_hand(0.32)
             move_base_pose_ik("map", DRAWER_LEFT_KNOB[0] - 0.078, (DRAWER_LEFT_KNOB[1] + SAFETY_PRE_GRASP_APPROACH_DIS), -90)
@@ -452,7 +455,7 @@ class ARM_t1():
             print("got on yolo...")
             plc = yolo.get_item_info(self.item)
             print('moving to place')
-            state = move_whole_body_pose_ik("map", plc.x, plc.y, *CONTAINER_A)
+            state = move_whole_body_pose_ik("map", plc.x, plc.y, *PLACE_POSE)
             if state:
                 move_hand(1.0)
                 self.target_item = None
@@ -563,7 +566,7 @@ class ARM_t1():
             pose = "grip_down_tall_table"
            
         arm.set_named_target(pose)
-        arm.go(wait=True)
+        arm.go()
         print('open gripper')
         # Open gripper
         move_hand(1.0)
@@ -588,7 +591,7 @@ class ARM_t1():
         # move_end_effector_by_line([0, 0, 1], z_diff)
         
         arm.set_named_target("go")
-        return arm.go(wait=True)
+        return arm.go()
 
     def pick(self, end_effector_z_min):
 
@@ -611,7 +614,7 @@ class ARM_t1():
         if self.target_item.z < 0.25:
             print('test pick here 1')
             arm.set_named_target("sweep_floor")
-            arm.go(wait=True)
+            arm.go()
             clear_octomap()
             move_base_pose_ik("map", self.target_item.x + self.hand_palm_base_link_offset , self.target_item.y, 90)
             rospy.sleep(2.0)
@@ -619,7 +622,7 @@ class ARM_t1():
         elif self.target_item.z > 0.38 and self.target_item.x > 0.35:
             print('test pick here 2')
             arm.set_named_target("sweep_long_table_b")
-            arm.go(wait=True)
+            arm.go()
             rospy.sleep(2.0)
             clear_octomap()
             move_base_pose_ik("map", self.target_item.x + self.hand_palm_base_link_offset , self.target_item.y, 90)
@@ -628,7 +631,7 @@ class ARM_t1():
         elif self.target_item.z > 0.58:
             print('test pick here 3')
             arm.set_named_target("sweep_tall_table")
-            arm.go(wait=True)
+            arm.go()
             rospy.sleep(2.0)
             clear_octomap()
             move_base_pose_ik("map", self.target_item.x + self.hand_palm_base_link_offset , self.target_item.y, 90)
