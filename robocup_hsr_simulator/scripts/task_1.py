@@ -162,6 +162,8 @@ class ARM_t1():
         self.step = 0
         self.got_target = False
         self.item = ''
+        self.timer = 0
+        self.timeout = 600
         # gripper.set_max_velocity_scaling_factor(0.6)
 
     def upload_planning_scene(self):
@@ -408,11 +410,16 @@ class ARM_t1():
                 print("after cost")
                 self.step +=1
         elif self.step == 2:
+            self.timer+=1
             print("attempt grabbing...")
             if self.got_target:
                 state = self.grab(self.target_item.x, self.target_item.y, self.target_item.z)
                 if state:
                     self.step +=1
+            elif not self.got_target and self.timer == self.timeout:
+                yolo.clear_list(True)
+                self.timer = 0
+                self.step = 0                
         elif self.step == 3:
             print("placing item...")
             place = ''
@@ -447,6 +454,7 @@ class ARM_t1():
                     rospy.sleep(1.0)
                 self.step += 1
         elif self.step == 4:
+            self.timer += 1
             print("got on yolo...")
             plc = yolo.get_item_info(self.item)
             print('moving to place')
@@ -458,7 +466,16 @@ class ARM_t1():
                 self.item = ''
                 yolo.clear_list(True)
                 self.step = 0
+                self.timer = 0
+            elif not state and self.timer == self.timeout:
+                move_hand(1.0)
+                self.target_item = None
+                self.item = ''
+                yolo.clear_list(True)
+                self.step = 0
+                self.timer = 0
 
+        
         # self.pick()
         # picked_up = object_grasping()
         # if not picked_up:
