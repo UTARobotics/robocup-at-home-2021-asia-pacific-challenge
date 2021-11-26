@@ -156,8 +156,8 @@ class ARM_t1():
         self.num_attempted_item = 0
 
         base.set_planner_id("PRM")
-        base.set_goal_joint_tolerance(0.005)
-        arm.set_goal_joint_tolerance(0.005)
+        base.set_goal_joint_tolerance(0.02)
+        arm.set_goal_joint_tolerance(0.02)
         self.upload_planning_scene()
         self.step = 0
         self.got_target = False

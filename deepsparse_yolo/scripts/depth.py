@@ -71,7 +71,8 @@ class Depth(object):
         if self.buffer.can_transform(parent_frame,child_frame,rospy.Time(0)):
             while not rospy.is_shutdown():
                 try:
-                    (trans, rot) = self.buffer.lookup_transform(parent_frame,child_frame,rospy.Time(0))
+                    trans_stmp = self.buffer.lookup_transform(parent_frame,child_frame,rospy.Time(0))
+                    (trans, rot) = trans_stmp.transform
                     (roll, pitch, yaw) = euler_from_quaternion(rot)
                     break
                 except (tf2_ros.LookupException, tf2_ros.ConnectivityException, tf2_ros.ExtrapolationException) as e :
