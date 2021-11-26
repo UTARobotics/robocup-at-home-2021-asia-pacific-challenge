@@ -237,14 +237,14 @@ class ARM():
             arm.set_joint_value_target("arm_lift_joint", 0.69)
         elif shelf_level == "shelf_level1":
             arm.set_joint_value_target("arm_lift_joint", 0.4)
-        arm.go(wait=True)
+        arm.go(wait=False)
         
-        while not self.move_base_link_pose_ik("map", x+X_OFFSET, 3.7, 90):
-           clear_octomap()
+        #while not self.move_base_link_pose_ik("map", x+X_OFFSET, 3.7, 90):
+           #clear_octomap()
         #rospy.sleep(1)
         
-        arm.set_named_target("transport_object")
-        arm.go(wait=False)
+        #arm.set_named_target("transport_object")
+        #arm.go(wait=False)
 
 class Task_2(object):
 
@@ -325,12 +325,12 @@ class Task_2(object):
         result = 'SUCCEEDED'if state == 3 else 'FAILED'
         rospy.loginfo(result)
 
-    def move_base_vel (self,vx, vy, vw):
-        twist = Twist ()
-        twist.linear.x = vx
-        twist.linear.y = vy
-        twist.angular.z = vw / 180.0 * math.pi # Convert from "degree" to "radian"
-        self.base_vel_pub.publish (twist) # Publish velocity command
+#     def move_base_vel (self,vx, vy, vw):
+#         twist = Twist ()
+#         twist.linear.x = vx
+#         twist.linear.y = vy
+#         twist.angular.z = vw / 180.0 * math.pi # Convert from "degree" to "radian"
+#         self.base_vel_pub.publish (twist) # Publish velocity command
 
     def move_head_tilt(self, v):
         self.head.set_joint_value_target("head_tilt_joint", v)
@@ -405,9 +405,9 @@ class Task_2(object):
         
         # ------------Object Grasping -----------------
         self.grip_food(self.command)
-        #self.move_base_vel(-1.0,0,0)
-        #arm.set_named_target("transport_object")
-        #arm.go(wait=False)
+        move_base_vel(-1.0, 0, 0, -1.5, 0, 0)
+        arm.set_named_target("transport_object")
+        arm.go(wait=False)
         #----------------------------------------------
         
         #-------------Approach person------------------
